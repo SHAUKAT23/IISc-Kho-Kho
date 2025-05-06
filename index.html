@@ -1,5 +1,4 @@
 <html lang="en">
-<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -394,10 +393,10 @@
             />
             <button
               type="submit"
-              :disabled="alumniLoading"
-              class="btn btn-accent"
+              :disabled="!user || !isRegisteredPlayer || chatInput.trim() === ''"
+              class="btn btn-primary"
             >
-              {{ alumniLoading ? 'Registering...' : 'Register as Alumni' }}
+              Send
             </button>
           </form>
           <p v-if="!user" class="text-error-color mt-2 text-center text-sm">
@@ -496,73 +495,99 @@
     </div>
 
     <!-- Player Registration Modal -->
-    <div>
-      <label for="playerName" class="block text-sm font-medium text-gray-700">Full Name</label>
-      <input
-        id="playerName"
-        v-model="playerForm.name"
-        type="text"
-        required
-        :readonly="user && user.user_metadata?.full_name"
-        :placeholder="user && user.user_metadata?.full_name ? user.user_metadata.full_name : 'Enter your full name'"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-      />
-    </div>
-    <div>
-      <label for="playerContact" class="block text-sm font-medium text-gray-700">Contact Number</label>
-      <input
-        id="playerContact"
-        v-model="playerForm.contact"
-        type="tel"
-        required
-        pattern="[0-9]{10,15}"
-        placeholder="10-15 digit number"
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-      />
-    </div>
-    <div>
-      <label for="playerType" class="block text-sm font-medium text-gray-700">Type of Player</label>
-      <select
-        id="playerType"
-        v-model="playerForm.player_type"
-        required
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+    <div
+      v-if="showPlayerRegister"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="bg-white rounded-lg max-w-lg w-full p-6 relative shadow-lg overflow-y-auto max-h-[90vh]"
       >
-        <option disabled value="">Select</option>
-        <option>attack</option>
-        <option>defense</option>
-      </select>
-    </div>
-    <div>
-      <label for="playerDept" class="block text-sm font-medium text-gray-700">Department</label>
-      <input
-        id="playerDept"
-        v-model="playerForm.department"
-        type="text"
-        required
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-      />
-    </div>
-    <div>
-      <label for="playerYear" class="block text-sm font-medium text-gray-700">Year of Study</label>
-      <input
-        id="playerYear"
-        v-model="playerForm.year_of_study"
-        type="number"
-        min="1"
-        required
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-      />
-    </div>
-    <div>
-      <label for="playerDegree" class="block text-sm font-medium text-gray-700">Degree</label>
-      <input
-        id="playerDegree"
-        v-model="playerForm.degree"
-        type="text"
-        required
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-      />
+        <button
+          @click="showPlayerRegister = false"
+          class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 focus:outline-none"
+          aria-label="Close player registration modal"
+        >
+          <i class="fas fa-times fa-lg"></i>
+        </button>
+        <h3 class="text-xl font-semibold mb-4 text-center">Register as Player</h3>
+        <form @submit.prevent="submitPlayerRegistration" class="space-y-4">
+          <div>
+            <label for="playerName" class="block text-sm font-medium text-gray-700">Full Name</label>
+            <input
+              id="playerName"
+              v-model="playerForm.name"
+              type="text"
+              required
+              :readonly="user && user.user_metadata?.full_name"
+              :placeholder="user && user.user_metadata?.full_name ? user.user_metadata.full_name : 'Enter your full name'"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+          </div>
+          <div>
+            <label for="playerContact" class="block text-sm font-medium text-gray-700">Contact Number</label>
+            <input
+              id="playerContact"
+              v-model="playerForm.contact"
+              type="tel"
+              required
+              pattern="[0-9]{10,15}"
+              placeholder="10-15 digit number"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+          </div>
+          <div>
+            <label for="playerType" class="block text-sm font-medium text-gray-700">Type of Player</label>
+            <select
+              id="playerType"
+              v-model="playerForm.player_type"
+              required
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            >
+              <option disabled value="">Select</option>
+              <option>attack</option>
+              <option>defense</option>
+            </select>
+          </div>
+          <div>
+            <label for="playerDept" class="block text-sm font-medium text-gray-700">Department</label>
+            <input
+              id="playerDept"
+              v-model="playerForm.department"
+              type="text"
+              required
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+          </div>
+          <div>
+            <label for="playerYear" class="block text-sm font-medium text-gray-700">Year of Study</label>
+            <input
+              id="playerYear"
+              v-model="playerForm.year_of_study"
+              type="number"
+              min="1"
+              required
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+          </div>
+          <div>
+            <label for="playerDegree" class="block text-sm font-medium text-gray-700">Degree</label>
+            <input
+              id="playerDegree"
+              v-model="playerForm.degree"
+              type="text"
+              required
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+          </div>
+          <button
+            type="submit"
+            :disabled="playerLoading"
+            class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-semibold focus:outline-none disabled:opacity-50"
+          >
+            {{ playerLoading ? 'Registering...' : 'Register as Player' }}
+          </button>
+        </form>
+      </div>
     </div>
 
     <!-- Notification Form Modal (for conveners) -->
