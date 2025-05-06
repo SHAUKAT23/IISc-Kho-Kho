@@ -122,8 +122,13 @@ const app = createApp({
       });
     }
 
+// Debug helper
+function checkSupabaseConfig() {
+  console.log("Current Supabase auth config:", supabase.auth.getSession());
+}    
     // Login with Google
     async function signInWithGoogle() {
+      checkSupabaseConfig();
       try {
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
@@ -141,6 +146,7 @@ const app = createApp({
         
         // Email domain restriction handled by hd param above
       } catch (e) {
+        console.error("OAuth error details:", e);
         alert("Login failed: " + e.message);
       }
     }
@@ -253,9 +259,8 @@ const app = createApp({
         const newPlayer = {
           name: playerForm.name,
           email: user.value.email,
-          contact: playerForm.contact,
+          contact: parseInt(playerForm.contact.replace(/\D/g, ''), 10),
           player_type: playerForm.player_type,
-          gender: playerGender.value,
           department: playerForm.department,
           year_of_study: parseInt(playerForm.year_of_study) || 1,
           degree: playerForm.degree,
@@ -282,6 +287,7 @@ const app = createApp({
         playerForm.degree = "";
         playerForm.category = "";
       } catch (e) {
+        console.error("Full player registration error:", e);
         alert("Registration failed: " + e.message);
       } finally {
         playerLoading.value = false;
