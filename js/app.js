@@ -128,6 +128,7 @@ const app = createApp({
         const { data, error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
+            redirectTo: 'https://shaukat23.github.io/IISc-Kho-Kho/',
             queryParams: {
               access_type: 'offline',
               prompt: 'consent',
