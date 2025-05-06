@@ -3,7 +3,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="IISc.png" type="image/png">
-<title>IISc Kho-Kho</title>  
+  <title>IISc Kho-Kho</title>
   <!-- Styling -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link
@@ -17,9 +17,6 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="styles.css" />
 
-<!-- In the <head> section, after your existing Supabase initialization -->
-
-  <!-- You can keep the original style section or move those styles to styles.css -->
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -42,11 +39,9 @@
   </style>
 </head>
 
-<!-- Rest of your HTML remains the same -->
-
 <body class="bg-gray-50 min-h-screen flex flex-col">
   <div id="app" class="flex flex-col md:flex-row flex-1 min-h-screen">
-        <!-- Sidebar -->
+    <!-- Sidebar -->
     <nav
       class="bg-white border-r border-gray-200 w-full md:w-64 flex-shrink-0 sidebar"
       aria-label="Sidebar"
@@ -55,7 +50,7 @@
         <img
           src="IISc.png"
           alt="IISc logo"
-          class="h-8 w-8 mr-2" <!-- Changed from h-10 w-10 -->
+          class="h-8 w-8 mr-2"
         />
         <h1 class="text-xl font-semibold text-gray-800">IISc Kho-Kho</h1>
       </div>
@@ -96,6 +91,15 @@
             <i class="fas fa-comments"></i> Chat
           </button>
         </li>
+        <li>
+          <button
+            @click="setTab('account')"
+            :class="[tab === 'account' ? 'nav-link active' : 'nav-link']"
+            class="w-full flex items-center focus:outline-none"
+          >
+            <i class="fas fa-user-circle"></i> Account
+          </button>
+        </li>        
       </ul>
     </nav>
 
@@ -111,25 +115,25 @@
           </h2>
         </div>
         <div class="flex items-center space-x-4">
-        <!-- Update user profile display -->
-        <template v-if="user">
-          <img
-            :src="user.user_metadata?.avatar_url || 'https://placehold.co/40x40/png?text=User'"
-            alt="User profile picture"
-            class="h-10 w-10 rounded-full object-cover"
-          />
-          <span class="text-gray-700 font-medium">{{ user.user_metadata?.full_name || user.email }}</span>
-          <button
-            @click="logout"
-            class="btn btn-danger"
-            title="Logout"
-          >
-            <i class="fas fa-sign-out-alt fa-lg"></i>
-          </button>
-        </template>
+          <!-- Update user profile display -->
+          <template v-if="user">
+            <img
+              :src="user.user_metadata?.avatar_url || 'https://placehold.co/40x40/png?text=User'"
+              alt="User profile picture"
+              class="h-10 w-10 rounded-full object-cover"
+            />
+            <span class="text-gray-700 font-medium">{{ user.user_metadata?.full_name || user.email }}</span>
+            <button
+              @click="logout"
+              class="btn btn-danger"
+              title="Logout"
+            >
+              <i class="fas fa-sign-out-alt fa-lg"></i>
+            </button>
+          </template>
           <template v-else>
             <button
-              @click="showLogin = true"
+              @click="setTab('account')"
               class="btn btn-primary"
             >
               Login / Register
@@ -142,7 +146,8 @@
       <section class="flex-1 overflow-auto p-6 bg-gray-50">
         <!-- Player List Tab -->
         <div v-if="tab === 'players'">
-          <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+          <div class="mb-6 flex justify-between">
+            <!-- Gender toggle buttons -->
             <div>
               <button
                 @click="playerGender = 'men'"
@@ -159,48 +164,133 @@
                 Women's Players
               </button>
             </div>
-            <button
-              @click="showPlayerRegister = true" 
-              class="btn btn-accent"
-            >
-              Register Player
+            
+            <!-- Toggle form visibility instead of popup -->
+            <button @click="showPlayerForm = !showPlayerForm" class="btn btn-accent">
+              {{ showPlayerForm ? 'Hide Form' : 'Register Player' }}
             </button>
           </div>
+          
+          <!-- Embedded registration form -->
+          <div v-if="showPlayerForm" class="mb-6 bg-white p-6 rounded-md shadow">
+            <h3 class="text-lg font-semibold mb-4">Register as Player</h3>
+            <form @submit.prevent="submitPlayerRegistration" class="space-y-4">
+              <div>
+                <label for="playerName" class="block text-sm font-medium text-gray-700">Full Name</label>
+                <input
+                  id="playerName"
+                  v-model="playerForm.name"
+                  type="text"
+                  required
+                  :readonly="user && user.user_metadata?.full_name"
+                  :placeholder="user && user.user_metadata?.full_name ? user.user_metadata.full_name : 'Enter your full name'"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                />
+              </div>
+              <div>
+                <label for="playerContact" class="block text-sm font-medium text-gray-700">Contact Number</label>
+                <input
+                  id="playerContact"
+                  v-model="playerForm.contact"
+                  type="tel"
+                  required
+                  pattern="[0-9]{10,15}"
+                  placeholder="10-15 digit number"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                />
+              </div>
+              <div>
+                <label for="playerType" class="block text-sm font-medium text-gray-700">Type of Player</label>
+                <select
+                  id="playerType"
+                  v-model="playerForm.player_type"
+                  required
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                >
+                  <option disabled value="">Select</option>
+                  <option>attack</option>
+                  <option>defense</option>
+                </select>
+              </div>
+              <div>
+                <label for="playerDept" class="block text-sm font-medium text-gray-700">Department</label>
+                <input
+                  id="playerDept"
+                  v-model="playerForm.department"
+                  type="text"
+                  required
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                />
+              </div>
+              <div>
+                <label for="playerYear" class="block text-sm font-medium text-gray-700">Year of Study</label>
+                <input
+                  id="playerYear"
+                  v-model="playerForm.year_of_study"
+                  type="number"
+                  min="1"
+                  required
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                />
+              </div>
+              <div>
+                <label for="playerDegree" class="block text-sm font-medium text-gray-700">Degree</label>
+                <input
+                  id="playerDegree"
+                  v-model="playerForm.degree"
+                  type="text"
+                  required
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                />
+              </div>
+              <button
+                type="submit"
+                :disabled="playerLoading || !user"
+                class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-semibold focus:outline-none disabled:opacity-50"
+              >
+                {{ playerLoading ? 'Registering...' : 'Register as Player' }}
+              </button>
+              <p v-if="!user" class="text-error-color text-center text-sm">
+                Please login first to register as a player.
+              </p>
+            </form>
+          </div>
+          
+          <!-- Player table -->
           <div class="overflow-x-auto">
             <table class="min-w-full bg-white rounded-md shadow">
-                          <!-- Update player list table -->
-            <thead class="bg-gray-100 border-b border-gray-300">
-              <tr>
-                <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Name</th>
-                <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Contact</th>
-                <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Department</th>
-                <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Type</th>
-                <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Degree</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr
-                v-for="player in filteredPlayers"
-                :key="player.id"
-                class="border-b border-gray-200 hover:bg-gray-50"
-              >
-                <td class="px-4 py-2 text-gray-800">{{ player.name }}</td>
-                <td class="px-4 py-2 text-gray-800">{{ player.contact }}</td>
-                <td class="px-4 py-2 text-gray-800">{{ player.department }}</td>
-                <td class="px-4 py-2 text-gray-800 capitalize">{{ player.player_type }}</td>
-                <td class="px-4 py-2 text-gray-800">{{ player.degree }}</td>
-              </tr>
-            </tbody>
+              <!-- Update player list table -->
+              <thead class="bg-gray-100 border-b border-gray-300">
+                <tr>
+                  <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Name</th>
+                  <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Contact</th>
+                  <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Department</th>
+                  <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Type</th>
+                  <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Degree</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="player in filteredPlayers"
+                  :key="player.id"
+                  class="border-b border-gray-200 hover:bg-gray-50"
+                >
+                  <td class="px-4 py-2 text-gray-800">{{ player.name }}</td>
+                  <td class="px-4 py-2 text-gray-800">{{ player.contact }}</td>
+                  <td class="px-4 py-2 text-gray-800">{{ player.department }}</td>
+                  <td class="px-4 py-2 text-gray-800 capitalize">{{ player.player_type }}</td>
+                  <td class="px-4 py-2 text-gray-800">{{ player.degree }}</td>
+                </tr>
+              </tbody>
             </table>
           </div>
         </div>
 
-        <!-- Notifications Tab - REPLACED WITH UNDER DEVELOPMENT MESSAGE -->
+        <!-- Notifications Tab -->
         <div v-if="tab === 'notifications'">
           <div class="mb-6 flex justify-between items-center">
             <h3 class="text-lg font-semibold text-gray-900">Notifications & Polls</h3>
           </div>
-          
           <!-- Under Development Message -->
           <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
             <div class="flex">
@@ -217,7 +307,6 @@
               </div>
             </div>
           </div>
-          
           <!-- Placeholder for future content -->
           <div class="mt-8 flex justify-center items-center h-64">
             <div class="text-center">
@@ -239,9 +328,7 @@
             class="max-w-lg bg-white p-6 rounded-md shadow space-y-4"
           >
             <div>
-              <label for="alumniName" class="block text-sm font-medium text-gray-700"
-                >Full Name</label
-              >
+              <label for="alumniName" class="block text-sm font-medium text-gray-700">Full Name</label>
               <input
                 id="alumniName"
                 v-model="alumniForm.name"
@@ -251,9 +338,7 @@
               />
             </div>
             <div>
-              <label for="alumniEmail" class="block text-sm font-medium text-gray-700"
-                >Email (must be @iisc.ac.in)</label
-              >
+              <label for="alumniEmail" class="block text-sm font-medium text-gray-700">Email (must be @iisc.ac.in)</label>
               <input
                 id="alumniEmail"
                 v-model="alumniForm.email"
@@ -263,9 +348,7 @@
               />
             </div>
             <div>
-              <label for="alumniContact" class="block text-sm font-medium text-gray-700"
-                >Contact Number</label
-              >
+              <label for="alumniContact" class="block text-sm font-medium text-gray-700">Contact Number</label>
               <input
                 id="alumniContact"
                 v-model="alumniForm.contact"
@@ -277,9 +360,7 @@
               />
             </div>
             <div>
-              <label for="alumniDepartment" class="block text-sm font-medium text-gray-700"
-                >Department / Area</label
-              >
+              <label for="alumniDepartment" class="block text-sm font-medium text-gray-700">Department / Area</label>
               <input
                 id="alumniDepartment"
                 v-model="alumniForm.department"
@@ -366,218 +447,115 @@
             You must register as a player to chat.
           </p>
         </div>
+
+        <!-- Account Tab (Login/Register) - replacing the popup -->
+        <div v-if="tab === 'account'">
+          <div class="mb-6 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900">
+              {{ user ? 'Account Details' : 'Login / Register' }}
+            </h3>
+          </div>
+          
+          <!-- Show account details if logged in -->
+          <div v-if="user" class="bg-white p-6 rounded-md shadow max-w-lg">
+            <div class="flex items-center space-x-4 mb-6">
+              <img
+                :src="user.user_metadata?.avatar_url || 'https://placehold.co/80x80/png?text=User'"
+                alt="User profile picture"
+                class="h-20 w-20 rounded-full object-cover"
+              />
+              <div>
+                <h4 class="text-xl font-semibold text-gray-800">
+                  {{ user.user_metadata?.full_name || user.email }}
+                </h4>
+                <p class="text-gray-600">{{ user.email }}</p>
+                <p class="text-gray-500 text-sm mt-1">
+                  Logged in via {{ user.app_metadata?.provider || 'email' }}
+                </p>
+              </div>
+            </div>
+            
+            <div class="border-t border-gray-200 pt-4">
+              <button
+                @click="logout"
+                class="btn btn-danger w-full"
+              >
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+              </button>
+            </div>
+          </div>
+          
+          <!-- Show login options if not logged in -->
+          <div v-else class="bg-white p-6 rounded-md shadow max-w-lg">
+            <div class="mb-6 space-y-3">
+              <button
+                @click="signInWithGoogle"
+                class="w-full flex items-center justify-center space-x-3 border border-gray-300 rounded-md py-2 hover:bg-gray-100 focus:outline-none"
+              >
+                <i class="fab fa-google fa-lg text-red-600"></i>
+                <span>Continue with Google</span>
+              </button>
+              <button
+                @click="signInWithMicrosoft"
+                class="w-full flex items-center justify-center space-x-3 border border-gray-300 rounded-md py-2 hover:bg-gray-100 focus:outline-none"
+              >
+                <i class="fab fa-microsoft fa-lg text-green-600"></i>
+                <span>Continue with Microsoft</span>
+              </button>
+              <button
+                @click="showEmailLogin = !showEmailLogin"
+                class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 focus:outline-none"
+              >
+                {{ showEmailLogin ? 'Hide Email Form' : 'Login / Register with Email' }}
+              </button>
+            </div>
+            
+            <form v-if="showEmailLogin" @submit.prevent="emailLogin" class="space-y-4 border-t border-gray-200 pt-4">
+              <div>
+                <label for="emailInput" class="block text-sm font-medium text-gray-700">Email (must be @iisc.ac.in)</label>
+                <input
+                  id="emailInput"
+                  v-model="emailLoginForm.email"
+                  type="email"
+                  required
+                  placeholder="yourname@iisc.ac.in"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                />
+              </div>
+              <div>
+                <label for="passwordInput" class="block text-sm font-medium text-gray-700">Password</label>
+                <input
+                  id="passwordInput"
+                  v-model="emailLoginForm.password"
+                  type="password"
+                  required
+                  minlength="6"
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                />
+              </div>
+              <button
+                type="submit"
+                :disabled="emailLoading"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-semibold focus:outline-none disabled:opacity-50"
+              >
+                {{ emailLoading ? 'Processing...' : 'Login / Register' }}
+              </button>
+            </form>
+            
+            <div class="mt-4 text-sm text-gray-600">
+              <p class="text-center">
+                Only @iisc.ac.in email addresses are allowed to use this app.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
-
-    <!-- Login/Register Modal -->
-    <div
-      v-if="showLogin"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-    >
-      <div
-        class="bg-white rounded-lg max-w-md w-full p-6 relative shadow-lg overflow-y-auto max-h-[90vh]"
-      >
-        <button
-          @click="showLogin = false"
-          class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 focus:outline-none"
-          aria-label="Close login modal"
-        >
-          <i class="fas fa-times fa-lg"></i>
-        </button>
-        <h3 class="text-xl font-semibold mb-4 text-center">Login / Register</h3>
-
-        <div v-if="!showEmailLogin">
-          <button
-            @click="signInWithGoogle"
-            class="w-full mb-3 flex items-center justify-center space-x-3 border border-gray-300 rounded-md py-2 hover:bg-gray-100 focus:outline-none"
-          >
-            <i class="fab fa-google fa-lg text-red-600"></i>
-            <span>Continue with Google</span>
-          </button>
-          <button
-            @click="signInWithMicrosoft"
-            class="w-full mb-3 flex items-center justify-center space-x-3 border border-gray-300 rounded-md py-2 hover:bg-gray-100 focus:outline-none"
-          >
-            <i class="fab fa-microsoft fa-lg text-green-600"></i>
-            <span>Continue with Microsoft</span>
-          </button>
-          <button
-            @click="showEmailLogin = true"
-            class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 focus:outline-none"
-          >
-            Login / Register with Email
-          </button>
-        </div>
-
-        <form v-if="showEmailLogin" @submit.prevent="emailLogin" class="space-y-4 mt-4">
-          <div>
-            <label for="emailInput" class="block text-sm font-medium text-gray-700"
-              >Email (must be @iisc.ac.in)</label
-            >
-            <input
-              id="emailInput"
-              v-model="emailLoginForm.email"
-              type="email"
-              required
-              placeholder="yourname@iisc.ac.in"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-          </div>
-          <div>
-            <label for="passwordInput" class="block text-sm font-medium text-gray-700"
-              >Password</label
-            >
-            <input
-              id="passwordInput"
-              v-model="emailLoginForm.password"
-              type="password"
-              required
-              minlength="6"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-          </div>
-          <button
-            type="submit"
-            :disabled="emailLoading"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-semibold focus:outline-none disabled:opacity-50"
-          >
-            {{ emailLoading ? 'Processing...' : 'Login / Register' }}
-          </button>
-          <button
-            type="button"
-            @click="showEmailLogin = false"
-            class="w-full mt-2 text-center text-blue-600 hover:underline focus:outline-none"
-          >
-            Back to other login options
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Player Registration Modal -->
-    <div
-      v-if="showPlayerRegister"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-    >
-      <div
-        class="bg-white rounded-lg max-w-lg w-full p-6 relative shadow-lg overflow-y-auto max-h-[90vh]"
-      >
-        <button
-          @click="showPlayerRegister = false"
-          class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 focus:outline-none"
-          aria-label="Close player registration modal"
-        >
-          <i class="fas fa-times fa-lg"></i>
-        </button>
-        <h3 class="text-xl font-semibold mb-4 text-center">Register as Player</h3>
-        <form @submit.prevent="submitPlayerRegistration" class="space-y-4">
-          <div>
-            <label for="playerName" class="block text-sm font-medium text-gray-700">Full Name</label>
-            <input
-              id="playerName"
-              v-model="playerForm.name"
-              type="text"
-              required
-              :readonly="user && user.user_metadata?.full_name"
-              :placeholder="user && user.user_metadata?.full_name ? user.user_metadata.full_name : 'Enter your full name'"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-          </div>
-          <div>
-            <label for="playerContact" class="block text-sm font-medium text-gray-700">Contact Number</label>
-            <input
-              id="playerContact"
-              v-model="playerForm.contact"
-              type="tel"
-              required
-              pattern="[0-9]{10,15}"
-              placeholder="10-15 digit number"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-          </div>
-          <div>
-            <label for="playerType" class="block text-sm font-medium text-gray-700">Type of Player</label>
-            <select
-              id="playerType"
-              v-model="playerForm.player_type"
-              required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            >
-              <option disabled value="">Select</option>
-              <option>attack</option>
-              <option>defense</option>
-            </select>
-          </div>
-          <div>
-            <label for="playerDept" class="block text-sm font-medium text-gray-700">Department</label>
-            <input
-              id="playerDept"
-              v-model="playerForm.department"
-              type="text"
-              required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-          </div>
-          <div>
-            <label for="playerYear" class="block text-sm font-medium text-gray-700">Year of Study</label>
-            <input
-              id="playerYear"
-              v-model="playerForm.year_of_study"
-              type="number"
-              min="1"
-              required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-          </div>
-          <div>
-            <label for="playerDegree" class="block text-sm font-medium text-gray-700">Degree</label>
-            <input
-              id="playerDegree"
-              v-model="playerForm.degree"
-              type="text"
-              required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-          </div>
-          <button
-            type="submit"
-            :disabled="playerLoading"
-            class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-semibold focus:outline-none disabled:opacity-50"
-          >
-            {{ playerLoading ? 'Registering...' : 'Register as Player' }}
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Notification Form Modal (for conveners) - KEPT DISABLED -->
-    <div
-      v-if="false"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-    >
-      <!-- Modal content remains unchanged but will never show due to v-if="false" -->
-      <div
-        class="bg-white rounded-lg max-w-lg w-full p-6 relative shadow-lg overflow-y-auto max-h-[90vh]"
-      >
-        <button
-          @click="showNotificationForm = false"
-          class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 focus:outline-none"
-          aria-label="Close notification form modal"
-        >
-          <i class="fas fa-times fa-lg"></i>
-        </button>
-        <h3 class="text-xl font-semibold mb-4 text-center">New Notification / Poll</h3>
-        <form @submit.prevent="submitNotification" class="space-y-4">
-          <!-- Form content remains unchanged -->
-        </form>
-      </div>
-    </div>
   </div>
 
-<!-- Replace lines 1036-1053 with this Supabase setup -->
-<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
     // First initialize Supabase client
     const supabaseUrl = 'https://lehwftoxkznvwoqnxipt.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxlaHdmdG94a3pudndvcW54aXB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1MjQ2MTgsImV4cCI6MjA2MjEwMDYxOH0.NzuD4dXtiWdZ9n3EWQGope9S7Pcn1b_lnGtgorwE6DU';
@@ -591,12 +569,11 @@
       setup() {
         const tab = ref("players");
         const user = ref(null);
-        const showLogin = ref(false);
         const showEmailLogin = ref(false);
         const emailLoginForm = reactive({ email: "", password: "" });
         const emailLoading = ref(false);
 
-        const showPlayerRegister = ref(false);
+        const showPlayerForm = ref(false);
         const playerForm = reactive({
           name: "",
           contact: "",
@@ -611,14 +588,6 @@
         const players = ref([]);
 
         const notifications = ref([]);
-        const showNotificationForm = ref(false);
-        const notificationForm = reactive({
-          title: "",
-          message: "",
-          mediaUrl: "",
-          pollQuestion: "",
-          pollOptions: [],
-        });
         const notificationLoading = ref(false);
         const pollVotes = reactive({});
         const pollResults = reactive({});
@@ -650,6 +619,8 @@
               return "Alumni";
             case "chat":
               return "Chat";
+            case "account":
+              return user.value ? "Your Account" : "Login / Register";
             default:
               return "";
           }
@@ -771,12 +742,9 @@
               
               if (signUpError) throw signUpError;
               
-              showLogin.value = false;
               alert("Verification email sent. Please check your inbox.");
             } else if (error) {
               throw error;
-            } else {
-              showLogin.value = false;
             }
           } catch (e) {
             alert("Login failed: " + e.message);
@@ -790,6 +758,8 @@
           const { error } = await supabase.auth.signOut();
           if (error) console.error("Logout error:", error);
           user.value = null;
+          // Navigate to players tab after logout
+          setTab('players');
         }
 
         // Load players from Supabase
@@ -828,7 +798,7 @@
             if (existing) {
               alert("You are already registered as a player.");
               playerLoading.value = false;
-              showPlayerRegister.value = false;
+              showPlayerForm.value = false;
               return;
             }
             
@@ -854,7 +824,7 @@
             
             players.value.push(data[0]);
             alert("Player registered successfully.");
-            showPlayerRegister.value = false;
+            showPlayerForm.value = false;
             
             // Reset form
             playerForm.name = "";
@@ -876,37 +846,6 @@
           // Set notifications to empty array - feature under development
           notifications.value = [];
           console.log("Notifications feature is under development");
-        }
-
-        // Submit notification (convener only) - KEPT BUT WILL NEVER BE CALLED DUE TO HIDDEN UI
-        async function submitNotification() {
-          // Function kept for future use
-          console.log("Notifications feature is under development");
-          return;
-        }
-
-        // Add poll option - KEPT BUT WILL NEVER BE CALLED
-        function addPollOption() {
-          if (notificationForm.pollOptions.length < 5) {
-            notificationForm.pollOptions.push("");
-          }
-        }
-        
-        // Remove poll option - KEPT BUT WILL NEVER BE CALLED
-        function removePollOption(idx) {
-          notificationForm.pollOptions.splice(idx, 1);
-        }
-
-        // Submit poll vote - KEPT BUT WILL NEVER BE CALLED
-        async function submitPollVote(noteId, option) {
-          console.log("Poll voting is under development");
-          return;
-        }
-
-        // Load poll results - KEPT BUT WILL NEVER BE CALLED
-        async function loadPollResults(noteId) {
-          console.log("Poll results loading is under development");
-          return;
         }
 
         // Load alumni list
@@ -1089,7 +1028,6 @@
           activeClass,
           inactiveClass,
           user,
-          showLogin,
           showEmailLogin,
           emailLoginForm,
           emailLoading,
@@ -1097,7 +1035,7 @@
           signInWithMicrosoft,
           emailLogin,
           logout,
-          showPlayerRegister,
+          showPlayerForm,
           playerForm,
           playerLoading,
           playerGender,
@@ -1105,15 +1043,9 @@
           players,
           submitPlayerRegistration,
           notifications,
-          showNotificationForm,
-          notificationForm,
           notificationLoading,
-          addPollOption,
-          removePollOption,
-          submitNotification,
           pollVotes,
           pollResults,
-          submitPollVote,
           isConvener,
           alumniForm,
           alumniLoading,
