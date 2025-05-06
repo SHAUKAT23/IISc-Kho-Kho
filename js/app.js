@@ -1,4 +1,4 @@
-/* Create new file: /js/app.js */
+/* Line 86-87 contains conveners email */
 // Import Vue
 import { createApp, ref, reactive, computed, onMounted, watch } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.prod.js';
 
@@ -78,7 +78,7 @@ const app = createApp({
 
     // Filter players by gender
     const filteredPlayers = computed(() =>
-      players.value.filter((p) => p.category === playerGender.value)
+      players.value.filter((p) => p.Category === playerGender.value)
     );
 
     // Check if user is convener (for demo, hardcode convener emails)
@@ -263,7 +263,7 @@ function checkSupabaseConfig() {
           department: playerForm.department,
           year_of_study: parseInt(playerForm.year_of_study) || 1,
           degree: playerForm.degree,
-          category: playerGender.value,
+          Category: playerGender.value,
         };
         
         const { data, error } = await supabase
