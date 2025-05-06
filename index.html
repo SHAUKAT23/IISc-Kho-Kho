@@ -255,13 +255,7 @@
               </p>
             </form>
           </div>
-
-          <div class="bg-red-100 p-4 mb-4 text-red-800">
-            <p>Total players: {{ players.length }}</p>
-            <p>Filtered players: {{ filteredPlayers.length }}</p>
-            <p>Current gender filter: {{ playerGender }}</p>
-            <p v-if="players.length > 0">First player data: {{ JSON.stringify(players[0]) }}</p>
-          </div>          
+        
           
           <!-- Player table -->
           <div class="overflow-x-auto">
