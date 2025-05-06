@@ -77,9 +77,12 @@ const app = createApp({
     }
 
     // Filter players by gender
-    const filteredPlayers = computed(() =>
-      players.value.filter((p) => p.category === playerGender.value)
-    );
+    const filteredPlayers = computed(() => {
+      console.log("Raw player data:", players.value);
+      return players.value.filter(p => 
+        (p.category === playerGender.value || p.Category === playerGender.value)
+      );
+    });
 
     // Check if user is convener (for demo, hardcode convener emails)
     const convenerEmails = [
@@ -439,11 +442,17 @@ function checkSupabaseConfig() {
     watch(
       user,
       (newUser) => {
+        console.log("User changed:", newUser ? newUser.email : "logged out");
         if (newUser) {
-          loadPlayers();
-          loadNotifications(); // Still called but modified to return empty array
-          loadAlumni();
-          loadChatMessages();
+          // Force immediate data load
+          Promise.all([
+            loadPlayers(),
+            loadNotifications(),
+            loadAlumni(),
+            loadChatMessages()
+          ]).then(() => {
+            console.log("All data loaded after login");
+          });
         } else {
           players.value = [];
           notifications.value = [];

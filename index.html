@@ -255,6 +255,13 @@
               </p>
             </form>
           </div>
+
+          <div class="bg-red-100 p-4 mb-4 text-red-800">
+            <p>Total players: {{ players.length }}</p>
+            <p>Filtered players: {{ filteredPlayers.length }}</p>
+            <p>Current gender filter: {{ playerGender }}</p>
+            <p v-if="players.length > 0">First player data: {{ JSON.stringify(players[0]) }}</p>
+          </div>          
           
           <!-- Player table -->
           <div class="overflow-x-auto">
@@ -271,16 +278,16 @@
               </thead>
               <tbody>
                 <tr
-                  v-for="player in filteredPlayers"
-                  :key="player.id"
-                  class="border-b border-gray-200 hover:bg-gray-50"
-                >
-                  <td class="px-4 py-2 text-gray-800">{{ player.name }}</td>
-                  <td class="px-4 py-2 text-gray-800">{{ player.contact }}</td>
-                  <td class="px-4 py-2 text-gray-800">{{ player.department }}</td>
-                  <td class="px-4 py-2 text-gray-800 capitalize">{{ player.player_type }}</td>
-                  <td class="px-4 py-2 text-gray-800">{{ player.degree }}</td>
-                </tr>
+                v-for="player in filteredPlayers"
+                :key="player.id || player.Id"
+                class="border-b border-gray-200 hover:bg-gray-50"
+              >
+                <td class="px-4 py-2 text-gray-800">{{ player.Name || player.name }}</td>
+                <td class="px-4 py-2 text-gray-800">{{ player.Contact || player.contact }}</td>
+                <td class="px-4 py-2 text-gray-800">{{ player.Department || player.department }}</td>
+                <td class="px-4 py-2 text-gray-800 capitalize">{{ player.Player_type || player.player_type }}</td>
+                <td class="px-4 py-2 text-gray-800">{{ player.Degree || player.degree }}</td>
+              </tr>
               </tbody>
             </table>
           </div>
