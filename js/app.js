@@ -266,10 +266,9 @@ function checkSupabaseConfig() {
           Category: playerGender.value,
         };
         
-        const { data, error } = await supabase
-          .from('players')
-          .insert([newPlayer])
-          .select();
+        const { error } = await supabase
+        .from('players')
+        .insert([newPlayer]);
           
         if (error) throw error;
         
