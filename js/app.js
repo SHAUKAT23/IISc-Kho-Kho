@@ -78,10 +78,11 @@ const app = createApp({
 
     // Filter players by gender
     const filteredPlayers = computed(() => {
-      console.log("Raw player data:", players.value);
-      return players.value.filter(p => 
-        (p.category === playerGender.value || p.Category === playerGender.value)
-      );
+      return players.value.filter(p => {
+        const categoryValue = p.category || p.Category || "";
+        // Check if the category starts with the current gender filter
+        return categoryValue.toLowerCase().startsWith(playerGender.value.toLowerCase());
+      });
     });
 
     // Check if user is convener (for demo, hardcode convener emails)
