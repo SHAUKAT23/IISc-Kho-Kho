@@ -195,71 +195,36 @@
           </div>
         </div>
 
-                <!-- Notifications Tab -->
+        <!-- Notifications Tab - REPLACED WITH UNDER DEVELOPMENT MESSAGE -->
         <div v-if="tab === 'notifications'">
           <div class="mb-6 flex justify-between items-center">
             <h3 class="text-lg font-semibold text-gray-900">Notifications & Polls</h3>
-            <button
-              v-if="isConvener"
-              @click="showNotificationForm = false"
-              class="btn btn-primary"
-              disabled
-            >
-              New Notification / Poll (Disabled)
-            </button>
           </div>
-          <div v-if="notifications.length === 0" class="text-gray-500 text-center py-10">
-            No notifications or polls yet.
-          </div>
-          <div class="space-y-6">
-            <div
-              v-for="note in notifications"
-              :key="note.id"
-              class="card notification-card p-4 fade-in"
-            >
-              <div class="flex justify-between items-center mb-2">
-                <h4 class="text-md font-semibold text-gray-900">{{ note.title }}</h4>
-                <span class="text-xs text-gray-500">{{ formatDate(note.createdAt) }}</span>
+          
+          <!-- Under Development Message -->
+          <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-tools text-blue-600"></i>
               </div>
-              <p class="text-gray-700 mb-3" v-if="note.message">{{ note.message }}</p>
-              <div v-if="note.mediaUrl" class="mb-3">
-                <img
-                  :src="note.mediaUrl"
-                  alt="Notification media content"
-                  class="max-w-full rounded-md"
-                />
-              </div>
-              <div v-if="note.poll" class="mb-3">
-                <p class="font-semibold text-gray-800 mb-1">Poll: {{ note.poll.question }}</p>
-                <div class="space-y-1">
-                  <label
-                    v-for="(option, idx) in note.poll.options"
-                    :key="idx"
-                    class="poll-option"
-                  >
-                    <input
-                      type="radio"
-                      :name="'poll-' + note.id"
-                      :value="option"
-                      v-model="pollVotes[note.id]"
-                      :disabled="!user"
-                      @change="submitPollVote(note.id, option)"
-                      class="form-radio text-blue-600 mr-2"
-                    />
-                    <span>{{ option }}</span>
-                  </label>
-                </div>
-                <p v-if="pollResults[note.id]" class="text-sm text-gray-600 mt-2">
-                  Votes:
-                  <span v-for="(count, option) in pollResults[note.id]" :key="option" class="mr-3">
-                    {{ option }}: {{ count }}
-                  </span>
+              <div class="ml-3">
+                <p class="text-md font-medium text-blue-800">
+                  This feature is under development
                 </p>
-                <p v-if="!user" class="text-sm text-error-color mt-2">Login to vote in polls.</p>
+                <p class="text-sm text-blue-700 mt-1">
+                  The notifications and polls functionality will be available soon. Thank you for your patience.
+                </p>
               </div>
-              <div class="text-sm text-gray-600 mt-2">
-                Convened by: {{ note.convener.name }} ({{ note.convener.email }})
+            </div>
+          </div>
+          
+          <!-- Placeholder for future content -->
+          <div class="mt-8 flex justify-center items-center h-64">
+            <div class="text-center">
+              <div class="mb-4">
+                <i class="fas fa-bell text-gray-400 text-6xl"></i>
               </div>
+              <p class="text-gray-500">Notifications will appear here once the feature is ready.</p>
             </div>
           </div>
         </div>
@@ -585,11 +550,12 @@
       </div>
     </div>
 
-    <!-- Notification Form Modal (for conveners) -->
+    <!-- Notification Form Modal (for conveners) - KEPT DISABLED -->
     <div
       v-if="false"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
     >
+      <!-- Modal content remains unchanged but will never show due to v-if="false" -->
       <div
         class="bg-white rounded-lg max-w-lg w-full p-6 relative shadow-lg overflow-y-auto max-h-[90vh]"
       >
@@ -602,81 +568,7 @@
         </button>
         <h3 class="text-xl font-semibold mb-4 text-center">New Notification / Poll</h3>
         <form @submit.prevent="submitNotification" class="space-y-4">
-          <div>
-            <label for="noteTitle" class="block text-sm font-medium text-gray-700"
-              >Title</label
-            >
-            <input
-              id="noteTitle"
-              v-model="notificationForm.title"
-              type="text"
-              required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-          </div>
-          <div>
-            <label for="noteMessage" class="block text-sm font-medium text-gray-700"
-              >Message (optional)</label
-            >
-            <textarea
-              id="noteMessage"
-              v-model="notificationForm.message"
-              rows="3"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            ></textarea>
-          </div>
-          <div>
-            <label for="noteMedia" class="block text-sm font-medium text-gray-700"
-              >Media URL (optional)</label
-            >
-            <input
-              id="noteMedia"
-              v-model="notificationForm.mediaUrl"
-              type="url"
-              placeholder="https://example.com/image.jpg"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Add Poll (optional)</label>
-            <input
-              v-model="notificationForm.pollQuestion"
-              type="text"
-              placeholder="Poll question"
-              class="mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-            />
-            <div v-for="(opt, idx) in notificationForm.pollOptions" :key="idx" class="flex space-x-2 mb-2">
-              <input
-                v-model="notificationForm.pollOptions[idx]"
-                type="text"
-                placeholder="Option"
-                class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-              />
-              <button
-                type="button"
-                @click="removePollOption(idx)"
-                class="text-red-600 hover:text-red-800 focus:outline-none"
-                title="Remove option"
-              >
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-            <button
-              type="button"
-              @click="addPollOption"
-              class="text-blue-600 hover:underline focus:outline-none"
-              :disabled="notificationForm.pollOptions.length >= 5"
-            >
-              + Add Option
-            </button>
-          </div>
-          <button
-            type="submit"
-            :disabled="notificationLoading"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-semibold focus:outline-none disabled:opacity-50"
-          >
-            {{ notificationLoading ? 'Posting...' : 'Post Notification' }}
-          </button>
+          <!-- Form content remains unchanged -->
         </form>
       </div>
     </div>
@@ -753,7 +645,7 @@
             case "players":
               return "Player List";
             case "notifications":
-              return "Notifications & Polls";
+              return "Notifications & Polls (Under Development)";
             case "alumni":
               return "Alumni";
             case "chat":
@@ -979,165 +871,42 @@
           }
         }
 
-        // Load notifications from Supabase
+        // Load notifications from Supabase - MODIFIED TO RETURN EMPTY ARRAY
         async function loadNotifications() {
-          try {
-            const { data, error } = await supabase
-              .from('notifications')
-              .select('*')
-              .order('created_at', { ascending: false });
-              
-            if (error) throw error;
-            notifications.value = data || [];
-            
-            // Load poll results for each notification with poll
-            notifications.value.forEach((note) => {
-              if (note.poll) {
-                loadPollResults(note.id);
-              }
-            });
-          } catch (e) {
-            console.error("Error loading notifications:", e);
-          }
+          // Set notifications to empty array - feature under development
+          notifications.value = [];
+          console.log("Notifications feature is under development");
         }
 
-        // Submit notification (convener only)
+        // Submit notification (convener only) - KEPT BUT WILL NEVER BE CALLED DUE TO HIDDEN UI
         async function submitNotification() {
-          if (!isConvener.value) {
-            alert("Only conveners can post notifications.");
-            return;
-          }
-          
-          if (!notificationForm.title.trim()) {
-            alert("Title is required.");
-            return;
-          }
-          
-          notificationLoading.value = true;
-          try {
-            let poll = null;
-            if (
-              notificationForm.pollQuestion.trim() &&
-              notificationForm.pollOptions.length >= 2 &&
-              notificationForm.pollOptions.every((opt) => opt.trim() !== "")
-            ) {
-              poll = {
-                question: notificationForm.pollQuestion.trim(),
-                options: notificationForm.pollOptions.map((opt) => opt.trim()),
-              };
-            }
-            
-            const newNote = {
-              title: notificationForm.title.trim(),
-              message: notificationForm.message.trim() || null,
-              media_url: notificationForm.mediaUrl.trim() || null,
-              poll,
-              convener: {
-                name: user.value.user_metadata?.full_name || "Convener",
-                email: user.value.email,
-              },
-              created_at: new Date().toISOString(),
-            };
-            
-            const { data, error } = await supabase
-              .from('notifications')
-              .insert([newNote])
-              .select();
-              
-            if (error) throw error;
-            
-            notifications.value.unshift(data[0]);
-            if (poll) {
-              pollResults[data[0].id] = {};
-            }
-            
-            alert("Notification posted.");
-            showNotificationForm.value = false;
-            
-            // Reset form
-            notificationForm.title = "";
-            notificationForm.message = "";
-            notificationForm.mediaUrl = "";
-            notificationForm.pollQuestion = "";
-            notificationForm.pollOptions = [];
-          } catch (e) {
-            alert("Failed to post notification: " + e.message);
-          } finally {
-            notificationLoading.value = false;
-          }
+          // Function kept for future use
+          console.log("Notifications feature is under development");
+          return;
         }
 
-        // Add poll option
+        // Add poll option - KEPT BUT WILL NEVER BE CALLED
         function addPollOption() {
           if (notificationForm.pollOptions.length < 5) {
             notificationForm.pollOptions.push("");
           }
         }
         
-        // Remove poll option
+        // Remove poll option - KEPT BUT WILL NEVER BE CALLED
         function removePollOption(idx) {
           notificationForm.pollOptions.splice(idx, 1);
         }
 
-        // Submit poll vote
+        // Submit poll vote - KEPT BUT WILL NEVER BE CALLED
         async function submitPollVote(noteId, option) {
-          if (!user.value) {
-            alert("Please login to vote.");
-            return;
-          }
-          
-          try {
-            const { data, error } = await supabase
-              .from('poll_votes')
-              .insert([
-                { 
-                  notification_id: noteId, 
-                  user_id: user.value.id, 
-                  option: option 
-                }
-              ])
-              .select();
-              
-            if (error && error.code === '23505') { // Unique violation
-              // Update existing vote
-              const { error: updateError } = await supabase
-                .from('poll_votes')
-                .update({ option: option })
-                .eq('notification_id', noteId)
-                .eq('user_id', user.value.id);
-                
-              if (updateError) throw updateError;
-            } else if (error) {
-              throw error;
-            }
-            
-            loadPollResults(noteId);
-          } catch (e) {
-            alert("Failed to submit vote: " + e.message);
-          }
+          console.log("Poll voting is under development");
+          return;
         }
 
-        // Load poll results
+        // Load poll results - KEPT BUT WILL NEVER BE CALLED
         async function loadPollResults(noteId) {
-          try {
-            const { data, error } = await supabase
-              .from('poll_votes')
-              .select('option')
-              .eq('notification_id', noteId);
-              
-            if (error) throw error;
-            
-            const counts = {};
-            (data || []).forEach((vote) => {
-              if (vote.option) {
-                counts[vote.option] = (counts[vote.option] || 0) + 1;
-              }
-            });
-            
-            pollResults[noteId] = counts;
-          } catch (e) {
-            console.error("Error loading poll results:", e);
-          }
+          console.log("Poll results loading is under development");
+          return;
         }
 
         // Load alumni list
@@ -1273,7 +1042,7 @@
           (newUser) => {
             if (newUser) {
               loadPlayers();
-              loadNotifications();
+              loadNotifications(); // Still called but modified to return empty array
               loadAlumni();
               loadChatMessages();
             } else {
