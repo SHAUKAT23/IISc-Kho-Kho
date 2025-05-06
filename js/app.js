@@ -271,8 +271,11 @@ function checkSupabaseConfig() {
         .insert([newPlayer]);
           
         if (error) throw error;
+
+        // Reload players to get updated list including new player
+        await loadPlayers();
         
-        players.value.push(data[0]);
+        
         alert("Player registered successfully.");
         showPlayerForm.value = false;
         
@@ -283,7 +286,7 @@ function checkSupabaseConfig() {
         playerForm.department = "";
         playerForm.year_of_study = "";
         playerForm.degree = "";
-        playerForm.category = "";
+        
       } catch (e) {
         console.error("Full player registration error:", e);
         alert("Registration failed: " + e.message);
