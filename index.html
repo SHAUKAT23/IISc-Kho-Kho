@@ -1,4 +1,5 @@
 <html lang="en">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -13,6 +14,8 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
     rel="stylesheet"
   />
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="styles.css" />
 
 <!-- In the <head> section, after your existing Supabase initialization -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -23,7 +26,7 @@
         const supabase = createClient(supabaseUrl, supabaseKey);
     </script>
 
-
+  <!-- You can keep the original style section or move those styles to styles.css -->
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -45,55 +48,59 @@
     }
   </style>
 </head>
+
+<!-- Rest of your HTML remains the same -->
+
 <body class="bg-gray-50 min-h-screen flex flex-col">
   <div id="app" class="flex flex-col md:flex-row flex-1 min-h-screen">
-    <!-- Sidebar -->
+        <!-- Sidebar -->
     <nav
-      class="bg-white border-r border-gray-200 w-full md:w-64 flex-shrink-0"
+      class="bg-white border-r border-gray-200 w-full md:w-64 flex-shrink-0 sidebar"
       aria-label="Sidebar"
     >
-      <div class="flex items-center justify-center h-16 border-b border-gray-200">
+      <div class="logo-container">
         <img
           src="https://placehold.co/40x40/png?text=IISc"
           alt="IISc logo, blue and white stylized letters"
           class="h-10 w-10 mr-2"
         />
-        <h1 class="text-xl font-semibold text-gray-800">IISc Kho-Kho</h1>      </div>
+        <h1 class="text-xl font-semibold text-gray-800">IISc Kho-Kho</h1>
+      </div>
       <ul class="mt-4 space-y-1 px-2">
         <li>
           <button
             @click="setTab('players')"
-            :class="tab === 'players' ? activeClass : inactiveClass"
-            class="w-full flex items-center px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
+            :class="[tab === 'players' ? 'nav-link active' : 'nav-link']"
+            class="w-full flex items-center focus:outline-none"
           >
-            <i class="fas fa-users mr-3"></i> Player List
+            <i class="fas fa-users"></i> Player List
           </button>
         </li>
         <li>
           <button
             @click="setTab('notifications')"
-            :class="tab === 'notifications' ? activeClass : inactiveClass"
-            class="w-full flex items-center px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
+            :class="[tab === 'notifications' ? 'nav-link active' : 'nav-link']"
+            class="w-full flex items-center focus:outline-none"
           >
-            <i class="fas fa-bell mr-3"></i> Notifications
+            <i class="fas fa-bell"></i> Notifications
           </button>
         </li>
         <li>
           <button
             @click="setTab('alumni')"
-            :class="tab === 'alumni' ? activeClass : inactiveClass"
-            class="w-full flex items-center px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
+            :class="[tab === 'alumni' ? 'nav-link active' : 'nav-link']"
+            class="w-full flex items-center focus:outline-none"
           >
-            <i class="fas fa-user-graduate mr-3"></i> Alumni
+            <i class="fas fa-user-graduate"></i> Alumni
           </button>
         </li>
         <li>
           <button
             @click="setTab('chat')"
-            :class="tab === 'chat' ? activeClass : inactiveClass"
-            class="w-full flex items-center px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
+            :class="[tab === 'chat' ? 'nav-link active' : 'nav-link']"
+            class="w-full flex items-center focus:outline-none"
           >
-            <i class="fas fa-comments mr-3"></i> Chat
+            <i class="fas fa-comments"></i> Chat
           </button>
         </li>
       </ul>
@@ -121,7 +128,7 @@
           <span class="text-gray-700 font-medium">{{ user.user_metadata?.full_name || user.email }}</span>
           <button
             @click="logout"
-            class="text-red-600 hover:text-red-800 focus:outline-none"
+            class="btn btn-danger"
             title="Logout"
           >
             <i class="fas fa-sign-out-alt fa-lg"></i>
@@ -130,7 +137,7 @@
           <template v-else>
             <button
               @click="showLogin = true"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-semibold focus:outline-none"
+              class="btn btn-primary"
             >
               Login / Register
             </button>
@@ -146,22 +153,22 @@
             <div>
               <button
                 @click="playerGender = 'men'"
-                :class="playerGender === 'men' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
-                class="px-4 py-2 rounded-md font-semibold mr-2 focus:outline-none"
+                :class="playerGender === 'men' ? 'btn btn-primary' : 'btn btn-secondary'"
+                class="mr-2 focus:outline-none"
               >
                 Men's Players
               </button>
               <button
                 @click="playerGender = 'women'"
-                :class="playerGender === 'women' ? 'bg-pink-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
-                class="px-4 py-2 rounded-md font-semibold focus:outline-none"
+                :class="playerGender === 'women' ? 'btn btn-accent' : 'btn btn-secondary'"
+                class="focus:outline-none"
               >
                 Women's Players
               </button>
             </div>
             <button
-              @click="showPlayerRegister = true"
-              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-semibold focus:outline-none"
+              @click="showPlayerRegister = true" 
+              class="btn btn-accent"
             >
               Register Player
             </button>
@@ -195,14 +202,14 @@
           </div>
         </div>
 
-        <!-- Notifications Tab -->
+                <!-- Notifications Tab -->
         <div v-if="tab === 'notifications'">
           <div class="mb-6 flex justify-between items-center">
             <h3 class="text-lg font-semibold text-gray-900">Notifications & Polls</h3>
             <button
               v-if="isConvener"
               @click="showNotificationForm = true"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-semibold focus:outline-none"
+              class="btn btn-primary"
             >
               New Notification / Poll
             </button>
@@ -214,7 +221,7 @@
             <div
               v-for="note in notifications"
               :key="note.id"
-              class="bg-white rounded-md shadow p-4 border border-gray-200"
+              class="card notification-card p-4 fade-in"
             >
               <div class="flex justify-between items-center mb-2">
                 <h4 class="text-md font-semibold text-gray-900">{{ note.title }}</h4>
@@ -234,7 +241,7 @@
                   <label
                     v-for="(option, idx) in note.poll.options"
                     :key="idx"
-                    class="flex items-center space-x-2 cursor-pointer"
+                    class="poll-option"
                   >
                     <input
                       type="radio"
@@ -243,9 +250,9 @@
                       v-model="pollVotes[note.id]"
                       :disabled="!user"
                       @change="submitPollVote(note.id, option)"
-                      class="form-radio text-blue-600"
+                      class="form-radio text-blue-600 mr-2"
                     />
-                    <span class="text-gray-700">{{ option }}</span>
+                    <span>{{ option }}</span>
                   </label>
                 </div>
                 <p v-if="pollResults[note.id]" class="text-sm text-gray-600 mt-2">
@@ -254,7 +261,7 @@
                     {{ option }}: {{ count }}
                   </span>
                 </p>
-                <p v-if="!user" class="text-sm text-red-600 mt-2">Login to vote in polls.</p>
+                <p v-if="!user" class="text-sm text-error-color mt-2">Login to vote in polls.</p>
               </div>
               <div class="text-sm text-gray-600 mt-2">
                 Convened by: {{ note.convener.name }} ({{ note.convener.email }})
@@ -351,48 +358,52 @@
         </div>
 
         <!-- Chat Tab -->
-        <div v-if="tab === 'chat'" class="flex flex-col h-full max-h-[calc(100vh-6rem-48px)]">
+        <div v-if="tab === 'chat'" class="chat-container">
           <div
             id="chatMessages"
-            class="flex-1 overflow-y-auto bg-white rounded-md shadow p-4 mb-4 border border-gray-200"
+            class="chat-messages card"
           >
             <div v-if="chatMessages.length === 0" class="text-gray-500 text-center py-10">
               No messages yet. Start the conversation!
             </div>
-            <div v-for="msg in chatMessages" :key="msg.id" class="mb-3">
+            <div 
+              v-for="msg in chatMessages" 
+              :key="msg.id" 
+              :class="[msg.user_id === user?.id ? 'message message-user' : 'message message-other', 'fade-in']"
+            >
               <div class="flex items-center space-x-2 mb-1">
                 <img
                   :src="msg.userPhoto || 'https://placehold.co/32x32/png?text=User'"
                   alt="User profile picture"
                   class="h-8 w-8 rounded-full object-cover"
                 />
-                <span class="font-semibold text-gray-800">{{ msg.userName }}</span>
-                <span class="text-xs text-gray-400">{{ formatDateTime(msg.createdAt) }}</span>
+                <span class="font-semibold">{{ msg.userName }}</span>
+                <span class="text-xs opacity-75">{{ formatDateTime(msg.createdAt) }}</span>
               </div>
-              <p class="text-gray-700 whitespace-pre-wrap">{{ msg.text }}</p>
+              <p class="whitespace-pre-wrap">{{ msg.text }}</p>
             </div>
           </div>
-          <form @submit.prevent="sendMessage" class="flex space-x-2">
+          <form @submit.prevent="sendMessage" class="chat-form">
             <input
               v-model="chatInput"
               type="text"
               placeholder="Type your message..."
               :disabled="!user || !isRegisteredPlayer"
-              class="flex-1 rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              class="chat-input"
               required
             />
             <button
               type="submit"
-              :disabled="!user || !isRegisteredPlayer || chatInput.trim() === ''"
-              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-semibold focus:outline-none disabled:opacity-50"
+              :disabled="alumniLoading"
+              class="btn btn-accent"
             >
-              Send
+              {{ alumniLoading ? 'Registering...' : 'Register as Alumni' }}
             </button>
           </form>
-          <p v-if="!user" class="text-red-600 mt-2 text-center text-sm">
+          <p v-if="!user" class="text-error-color mt-2 text-center text-sm">
             Please login to participate in chat.
           </p>
-          <p v-else-if="user && !isRegisteredPlayer" class="text-red-600 mt-2 text-center text-sm">
+          <p v-else-if="user && !isRegisteredPlayer" class="text-error-color mt-2 text-center text-sm">
             You must register as a player to chat.
           </p>
         </div>
