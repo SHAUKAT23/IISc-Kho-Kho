@@ -17,13 +17,6 @@
   <link rel="stylesheet" href="styles.css" />
 
 <!-- In the <head> section, after your existing Supabase initialization -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script>
-        const supabaseUrl = 'https://lehwftoxkznvwoqnxipt.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxlaHdmdG94a3pudndvcW54aXB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1MjQ2MTgsImV4cCI6MjA2MjEwMDYxOH0.NzuD4dXtiWdZ9n3EWQGope9S7Pcn1b_lnGtgorwE6DU';
-        const { createClient } = supabase;
-        const supabase = createClient(supabaseUrl, supabaseKey);
-    </script>
 
   <!-- You can keep the original style section or move those styles to styles.css -->
   <style>
@@ -689,7 +682,15 @@
 
 <!-- Replace lines 1036-1053 with this Supabase setup -->
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
+    // First initialize Supabase client
+    const supabaseUrl = 'https://lehwftoxkznvwoqnxipt.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxlaHdmdG94a3pudndvcW54aXB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1MjQ2MTgsImV4cCI6MjA2MjEwMDYxOH0.NzuD4dXtiWdZ9n3EWQGope9S7Pcn1b_lnGtgorwE6DU';
+    const { createClient } = supabase;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Then setup Vue
     const { createApp, ref, reactive, computed, onMounted, watch } = Vue;
 
     createApp({
