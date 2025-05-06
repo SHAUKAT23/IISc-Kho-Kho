@@ -1,0 +1,1325 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>IISc Kho-Kho</title>  
+  <!-- Styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+    rel="stylesheet"
+  />
+
+<!-- In the <head> section, after your existing Supabase initialization -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://lehwftoxkznvwoqnxipt.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxlaHdmdG94a3pudndvcW54aXB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY1MjQ2MTgsImV4cCI6MjA2MjEwMDYxOH0.NzuD4dXtiWdZ9n3EWQGope9S7Pcn1b_lnGtgorwE6DU';
+        const { createClient } = supabase;
+        const supabase = createClient(supabaseUrl, supabaseKey);
+    </script>
+
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    /* Scrollbar for chat messages */
+    #chatMessages {
+      scrollbar-width: thin;
+      scrollbar-color: #a0aec0 transparent;
+    }
+    #chatMessages::-webkit-scrollbar {
+      width: 8px;
+    }
+    #chatMessages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    #chatMessages::-webkit-scrollbar-thumb {
+      background-color: #a0aec0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+  <div id="app" class="flex flex-col md:flex-row flex-1 min-h-screen">
+    <!-- Sidebar -->
+    <nav
+      class="bg-white border-r border-gray-200 w-full md:w-64 flex-shrink-0"
+      aria-label="Sidebar"
+    >
+      <div class="flex items-center justify-center h-16 border-b border-gray-200">
+        <img
+          src="https://placehold.co/40x40/png?text=IISc"
+          alt="IISc logo, blue and white stylized letters"
+          class="h-10 w-10 mr-2"
+        />
+        <h1 class="text-xl font-semibold text-gray-800">IISc Kho-Kho</h1>      </div>
+      <ul class="mt-4 space-y-1 px-2">
+        <li>
+          <button
+            @click="setTab('players')"
+            :class="tab === 'players' ? activeClass : inactiveClass"
+            class="w-full flex items-center px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
+          >
+            <i class="fas fa-users mr-3"></i> Player List
+          </button>
+        </li>
+        <li>
+          <button
+            @click="setTab('notifications')"
+            :class="tab === 'notifications' ? activeClass : inactiveClass"
+            class="w-full flex items-center px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
+          >
+            <i class="fas fa-bell mr-3"></i> Notifications
+          </button>
+        </li>
+        <li>
+          <button
+            @click="setTab('alumni')"
+            :class="tab === 'alumni' ? activeClass : inactiveClass"
+            class="w-full flex items-center px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
+          >
+            <i class="fas fa-user-graduate mr-3"></i> Alumni
+          </button>
+        </li>
+        <li>
+          <button
+            @click="setTab('chat')"
+            :class="tab === 'chat' ? activeClass : inactiveClass"
+            class="w-full flex items-center px-3 py-2 rounded-md text-sm font-medium focus:outline-none"
+          >
+            <i class="fas fa-comments mr-3"></i> Chat
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col">
+      <!-- Header -->
+      <header
+        class="flex items-center justify-between bg-white border-b border-gray-200 h-16 px-4"
+      >
+        <div>
+          <h2 class="text-lg font-semibold text-gray-900 capitalize">
+            {{ tabTitle }}
+          </h2>
+        </div>
+        <div class="flex items-center space-x-4">
+        <!-- Update user profile display -->
+        <template v-if="user">
+          <img
+            :src="user.user_metadata?.avatar_url || 'https://placehold.co/40x40/png?text=User'"
+            alt="User profile picture"
+            class="h-10 w-10 rounded-full object-cover"
+          />
+          <span class="text-gray-700 font-medium">{{ user.user_metadata?.full_name || user.email }}</span>
+          <button
+            @click="logout"
+            class="text-red-600 hover:text-red-800 focus:outline-none"
+            title="Logout"
+          >
+            <i class="fas fa-sign-out-alt fa-lg"></i>
+          </button>
+        </template>
+          <template v-else>
+            <button
+              @click="showLogin = true"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-semibold focus:outline-none"
+            >
+              Login / Register
+            </button>
+          </template>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <section class="flex-1 overflow-auto p-6 bg-gray-50">
+        <!-- Player List Tab -->
+        <div v-if="tab === 'players'">
+          <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+            <div>
+              <button
+                @click="playerGender = 'men'"
+                :class="playerGender === 'men' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+                class="px-4 py-2 rounded-md font-semibold mr-2 focus:outline-none"
+              >
+                Men's Players
+              </button>
+              <button
+                @click="playerGender = 'women'"
+                :class="playerGender === 'women' ? 'bg-pink-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+                class="px-4 py-2 rounded-md font-semibold focus:outline-none"
+              >
+                Women's Players
+              </button>
+            </div>
+            <button
+              @click="showPlayerRegister = true"
+              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-semibold focus:outline-none"
+            >
+              Register Player
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full bg-white rounded-md shadow">
+                          <!-- Update player list table -->
+            <thead class="bg-gray-100 border-b border-gray-300">
+              <tr>
+                <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Name</th>
+                <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Contact</th>
+                <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Department</th>
+                <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Type</th>
+                <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Degree</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="player in filteredPlayers"
+                :key="player.id"
+                class="border-b border-gray-200 hover:bg-gray-50"
+              >
+                <td class="px-4 py-2 text-gray-800">{{ player.name }}</td>
+                <td class="px-4 py-2 text-gray-800">{{ player.contact }}</td>
+                <td class="px-4 py-2 text-gray-800">{{ player.department }}</td>
+                <td class="px-4 py-2 text-gray-800 capitalize">{{ player.player_type }}</td>
+                <td class="px-4 py-2 text-gray-800">{{ player.degree }}</td>
+              </tr>
+            </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div v-if="tab === 'notifications'">
+          <div class="mb-6 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900">Notifications & Polls</h3>
+            <button
+              v-if="isConvener"
+              @click="showNotificationForm = true"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-semibold focus:outline-none"
+            >
+              New Notification / Poll
+            </button>
+          </div>
+          <div v-if="notifications.length === 0" class="text-gray-500 text-center py-10">
+            No notifications or polls yet.
+          </div>
+          <div class="space-y-6">
+            <div
+              v-for="note in notifications"
+              :key="note.id"
+              class="bg-white rounded-md shadow p-4 border border-gray-200"
+            >
+              <div class="flex justify-between items-center mb-2">
+                <h4 class="text-md font-semibold text-gray-900">{{ note.title }}</h4>
+                <span class="text-xs text-gray-500">{{ formatDate(note.createdAt) }}</span>
+              </div>
+              <p class="text-gray-700 mb-3" v-if="note.message">{{ note.message }}</p>
+              <div v-if="note.mediaUrl" class="mb-3">
+                <img
+                  :src="note.mediaUrl"
+                  alt="Notification media content"
+                  class="max-w-full rounded-md"
+                />
+              </div>
+              <div v-if="note.poll" class="mb-3">
+                <p class="font-semibold text-gray-800 mb-1">Poll: {{ note.poll.question }}</p>
+                <div class="space-y-1">
+                  <label
+                    v-for="(option, idx) in note.poll.options"
+                    :key="idx"
+                    class="flex items-center space-x-2 cursor-pointer"
+                  >
+                    <input
+                      type="radio"
+                      :name="'poll-' + note.id"
+                      :value="option"
+                      v-model="pollVotes[note.id]"
+                      :disabled="!user"
+                      @change="submitPollVote(note.id, option)"
+                      class="form-radio text-blue-600"
+                    />
+                    <span class="text-gray-700">{{ option }}</span>
+                  </label>
+                </div>
+                <p v-if="pollResults[note.id]" class="text-sm text-gray-600 mt-2">
+                  Votes:
+                  <span v-for="(count, option) in pollResults[note.id]" :key="option" class="mr-3">
+                    {{ option }}: {{ count }}
+                  </span>
+                </p>
+                <p v-if="!user" class="text-sm text-red-600 mt-2">Login to vote in polls.</p>
+              </div>
+              <div class="text-sm text-gray-600 mt-2">
+                Convened by: {{ note.convener.name }} ({{ note.convener.email }})
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alumni Tab -->
+        <div v-if="tab === 'alumni'">
+          <div class="mb-6 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-900">Alumni Registration</h3>
+          </div>
+          <form
+            @submit.prevent="submitAlumniRegistration"
+            class="max-w-lg bg-white p-6 rounded-md shadow space-y-4"
+          >
+            <div>
+              <label for="alumniName" class="block text-sm font-medium text-gray-700"
+                >Full Name</label
+              >
+              <input
+                id="alumniName"
+                v-model="alumniForm.name"
+                type="text"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+            </div>
+            <div>
+              <label for="alumniEmail" class="block text-sm font-medium text-gray-700"
+                >Email (must be @iisc.ac.in)</label
+              >
+              <input
+                id="alumniEmail"
+                v-model="alumniForm.email"
+                type="email"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+            </div>
+            <div>
+              <label for="alumniContact" class="block text-sm font-medium text-gray-700"
+                >Contact Number</label
+              >
+              <input
+                id="alumniContact"
+                v-model="alumniForm.contact"
+                type="tel"
+                required
+                pattern="[0-9]{10,15}"
+                placeholder="10-15 digit number"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+            </div>
+            <div>
+              <label for="alumniDepartment" class="block text-sm font-medium text-gray-700"
+                >Department / Area</label
+              >
+              <input
+                id="alumniDepartment"
+                v-model="alumniForm.department"
+                type="text"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+            </div>
+            <button
+              type="submit"
+              :disabled="alumniLoading"
+              class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-semibold focus:outline-none disabled:opacity-50"
+            >
+              {{ alumniLoading ? 'Registering...' : 'Register as Alumni' }}
+            </button>
+          </form>
+          <div class="mt-10">
+            <h4 class="text-lg font-semibold text-gray-900 mb-4">Registered Alumni</h4>
+            <div v-if="alumniList.length === 0" class="text-gray-500 text-center py-6">
+              No alumni registered yet.
+            </div>
+            <ul class="space-y-3 max-w-xl mx-auto">
+              <li
+                v-for="alum in alumniList"
+                :key="alum.id"
+                class="bg-white rounded-md shadow p-4 border border-gray-200"
+              >
+                <p class="font-semibold text-gray-800">{{ alum.name }}</p>
+                <p class="text-sm text-gray-600">{{ alum.email }}</p>
+                <p class="text-sm text-gray-600">Contact: {{ alum.contact }}</p>
+                <p class="text-sm text-gray-600">Department: {{ alum.department }}</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Chat Tab -->
+        <div v-if="tab === 'chat'" class="flex flex-col h-full max-h-[calc(100vh-6rem-48px)]">
+          <div
+            id="chatMessages"
+            class="flex-1 overflow-y-auto bg-white rounded-md shadow p-4 mb-4 border border-gray-200"
+          >
+            <div v-if="chatMessages.length === 0" class="text-gray-500 text-center py-10">
+              No messages yet. Start the conversation!
+            </div>
+            <div v-for="msg in chatMessages" :key="msg.id" class="mb-3">
+              <div class="flex items-center space-x-2 mb-1">
+                <img
+                  :src="msg.userPhoto || 'https://placehold.co/32x32/png?text=User'"
+                  alt="User profile picture"
+                  class="h-8 w-8 rounded-full object-cover"
+                />
+                <span class="font-semibold text-gray-800">{{ msg.userName }}</span>
+                <span class="text-xs text-gray-400">{{ formatDateTime(msg.createdAt) }}</span>
+              </div>
+              <p class="text-gray-700 whitespace-pre-wrap">{{ msg.text }}</p>
+            </div>
+          </div>
+          <form @submit.prevent="sendMessage" class="flex space-x-2">
+            <input
+              v-model="chatInput"
+              type="text"
+              placeholder="Type your message..."
+              :disabled="!user || !isRegisteredPlayer"
+              class="flex-1 rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              required
+            />
+            <button
+              type="submit"
+              :disabled="!user || !isRegisteredPlayer || chatInput.trim() === ''"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-semibold focus:outline-none disabled:opacity-50"
+            >
+              Send
+            </button>
+          </form>
+          <p v-if="!user" class="text-red-600 mt-2 text-center text-sm">
+            Please login to participate in chat.
+          </p>
+          <p v-else-if="user && !isRegisteredPlayer" class="text-red-600 mt-2 text-center text-sm">
+            You must register as a player to chat.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Login/Register Modal -->
+    <div
+      v-if="showLogin"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="bg-white rounded-lg max-w-md w-full p-6 relative shadow-lg overflow-y-auto max-h-[90vh]"
+      >
+        <button
+          @click="showLogin = false"
+          class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 focus:outline-none"
+          aria-label="Close login modal"
+        >
+          <i class="fas fa-times fa-lg"></i>
+        </button>
+        <h3 class="text-xl font-semibold mb-4 text-center">Login / Register</h3>
+
+        <div v-if="!showEmailLogin">
+          <button
+            @click="signInWithGoogle"
+            class="w-full mb-3 flex items-center justify-center space-x-3 border border-gray-300 rounded-md py-2 hover:bg-gray-100 focus:outline-none"
+          >
+            <i class="fab fa-google fa-lg text-red-600"></i>
+            <span>Continue with Google</span>
+          </button>
+          <button
+            @click="signInWithMicrosoft"
+            class="w-full mb-3 flex items-center justify-center space-x-3 border border-gray-300 rounded-md py-2 hover:bg-gray-100 focus:outline-none"
+          >
+            <i class="fab fa-microsoft fa-lg text-green-600"></i>
+            <span>Continue with Microsoft</span>
+          </button>
+          <button
+            @click="showEmailLogin = true"
+            class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 focus:outline-none"
+          >
+            Login / Register with Email
+          </button>
+        </div>
+
+        <form v-if="showEmailLogin" @submit.prevent="emailLogin" class="space-y-4 mt-4">
+          <div>
+            <label for="emailInput" class="block text-sm font-medium text-gray-700"
+              >Email (must be @iisc.ac.in)</label
+            >
+            <input
+              id="emailInput"
+              v-model="emailLoginForm.email"
+              type="email"
+              required
+              placeholder="yourname@iisc.ac.in"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+          </div>
+          <div>
+            <label for="passwordInput" class="block text-sm font-medium text-gray-700"
+              >Password</label
+            >
+            <input
+              id="passwordInput"
+              v-model="emailLoginForm.password"
+              type="password"
+              required
+              minlength="6"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+          </div>
+          <button
+            type="submit"
+            :disabled="emailLoading"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-semibold focus:outline-none disabled:opacity-50"
+          >
+            {{ emailLoading ? 'Processing...' : 'Login / Register' }}
+          </button>
+          <button
+            type="button"
+            @click="showEmailLogin = false"
+            class="w-full mt-2 text-center text-blue-600 hover:underline focus:outline-none"
+          >
+            Back to other login options
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Player Registration Modal -->
+    <div>
+      <label for="playerName" class="block text-sm font-medium text-gray-700">Full Name</label>
+      <input
+        id="playerName"
+        v-model="playerForm.name"
+        type="text"
+        required
+        :readonly="user && user.user_metadata?.full_name"
+        :placeholder="user && user.user_metadata?.full_name ? user.user_metadata.full_name : 'Enter your full name'"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+      />
+    </div>
+    <div>
+      <label for="playerContact" class="block text-sm font-medium text-gray-700">Contact Number</label>
+      <input
+        id="playerContact"
+        v-model="playerForm.contact"
+        type="tel"
+        required
+        pattern="[0-9]{10,15}"
+        placeholder="10-15 digit number"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+      />
+    </div>
+    <div>
+      <label for="playerType" class="block text-sm font-medium text-gray-700">Type of Player</label>
+      <select
+        id="playerType"
+        v-model="playerForm.player_type"
+        required
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+      >
+        <option disabled value="">Select</option>
+        <option>attack</option>
+        <option>defense</option>
+      </select>
+    </div>
+    <div>
+      <label for="playerDept" class="block text-sm font-medium text-gray-700">Department</label>
+      <input
+        id="playerDept"
+        v-model="playerForm.department"
+        type="text"
+        required
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+      />
+    </div>
+    <div>
+      <label for="playerYear" class="block text-sm font-medium text-gray-700">Year of Study</label>
+      <input
+        id="playerYear"
+        v-model="playerForm.year_of_study"
+        type="number"
+        min="1"
+        required
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+      />
+    </div>
+    <div>
+      <label for="playerDegree" class="block text-sm font-medium text-gray-700">Degree</label>
+      <input
+        id="playerDegree"
+        v-model="playerForm.degree"
+        type="text"
+        required
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+      />
+    </div>
+
+    <!-- Notification Form Modal (for conveners) -->
+    <div
+      v-if="showNotificationForm"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    >
+      <div
+        class="bg-white rounded-lg max-w-lg w-full p-6 relative shadow-lg overflow-y-auto max-h-[90vh]"
+      >
+        <button
+          @click="showNotificationForm = false"
+          class="absolute top-3 right-3 text-gray-600 hover:text-gray-900 focus:outline-none"
+          aria-label="Close notification form modal"
+        >
+          <i class="fas fa-times fa-lg"></i>
+        </button>
+        <h3 class="text-xl font-semibold mb-4 text-center">New Notification / Poll</h3>
+        <form @submit.prevent="submitNotification" class="space-y-4">
+          <div>
+            <label for="noteTitle" class="block text-sm font-medium text-gray-700"
+              >Title</label
+            >
+            <input
+              id="noteTitle"
+              v-model="notificationForm.title"
+              type="text"
+              required
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+          </div>
+          <div>
+            <label for="noteMessage" class="block text-sm font-medium text-gray-700"
+              >Message (optional)</label
+            >
+            <textarea
+              id="noteMessage"
+              v-model="notificationForm.message"
+              rows="3"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            ></textarea>
+          </div>
+          <div>
+            <label for="noteMedia" class="block text-sm font-medium text-gray-700"
+              >Media URL (optional)</label
+            >
+            <input
+              id="noteMedia"
+              v-model="notificationForm.mediaUrl"
+              type="url"
+              placeholder="https://example.com/image.jpg"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Add Poll (optional)</label>
+            <input
+              v-model="notificationForm.pollQuestion"
+              type="text"
+              placeholder="Poll question"
+              class="mb-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            />
+            <div v-for="(opt, idx) in notificationForm.pollOptions" :key="idx" class="flex space-x-2 mb-2">
+              <input
+                v-model="notificationForm.pollOptions[idx]"
+                type="text"
+                placeholder="Option"
+                class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+              />
+              <button
+                type="button"
+                @click="removePollOption(idx)"
+                class="text-red-600 hover:text-red-800 focus:outline-none"
+                title="Remove option"
+              >
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <button
+              type="button"
+              @click="addPollOption"
+              class="text-blue-600 hover:underline focus:outline-none"
+              :disabled="notificationForm.pollOptions.length >= 5"
+            >
+              + Add Option
+            </button>
+          </div>
+          <button
+            type="submit"
+            :disabled="notificationLoading"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-semibold focus:outline-none disabled:opacity-50"
+          >
+            {{ notificationLoading ? 'Posting...' : 'Post Notification' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<!-- Replace lines 1036-1053 with this Supabase setup -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+    const { createApp, ref, reactive, computed, onMounted, watch } = Vue;
+
+    createApp({
+      setup() {
+        const tab = ref("players");
+        const user = ref(null);
+        const showLogin = ref(false);
+        const showEmailLogin = ref(false);
+        const emailLoginForm = reactive({ email: "", password: "" });
+        const emailLoading = ref(false);
+
+        const showPlayerRegister = ref(false);
+        const playerForm = reactive({
+          name: "",
+          contact: "",
+          player_type: "",
+          department: "",
+          year_of_study: "",
+          degree: "",
+          category: "",
+        });
+        const playerLoading = ref(false);
+        const playerGender = ref("men");
+        const players = ref([]);
+
+        const notifications = ref([]);
+        const showNotificationForm = ref(false);
+        const notificationForm = reactive({
+          title: "",
+          message: "",
+          mediaUrl: "",
+          pollQuestion: "",
+          pollOptions: [],
+        });
+        const notificationLoading = ref(false);
+        const pollVotes = reactive({});
+        const pollResults = reactive({});
+
+        const alumniForm = reactive({
+          name: "",
+          email: "",
+          contact: "",
+          department: "",
+        });
+        const alumniLoading = ref(false);
+        const alumniList = ref([]);
+
+        const chatMessages = ref([]);
+        const chatInput = ref("");
+
+        const activeClass =
+          "bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500";
+        const inactiveClass =
+          "text-gray-700 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500";
+
+        const tabTitle = computed(() => {
+          switch (tab.value) {
+            case "players":
+              return "Player List";
+            case "notifications":
+              return "Notifications & Polls";
+            case "alumni":
+              return "Alumni";
+            case "chat":
+              return "Chat";
+            default:
+              return "";
+          }
+        });
+
+        function setTab(t) {
+          tab.value = t;
+        }
+
+        // Filter players by gender
+        const filteredPlayers = computed(() =>
+          players.value.filter((p) => p.gender === playerGender.value)
+        );
+
+        // Check if user is convener (for demo, hardcode convener emails)
+        const convenerEmails = [
+          "convener1@iisc.ac.in",
+          "convener2@iisc.ac.in",
+          "convener3@iisc.ac.in",
+        ];
+        const isConvener = computed(() =>
+          user.value ? convenerEmails.includes(user.value.email) : false
+        );
+
+        // Check if user is registered player
+        const isRegisteredPlayer = computed(() => {
+          if (!user.value) return false;
+          return players.value.some(
+            (p) =>
+              p.email === user.value.email &&
+              p.name.toLowerCase() === (user.value.display_name || "").toLowerCase()
+          );
+        });
+
+        // Format date
+        function formatDate(timestamp) {
+          if (!timestamp) return "";
+          return new Date(timestamp).toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+        }
+        
+        function formatDateTime(timestamp) {
+          if (!timestamp) return "";
+          return new Date(timestamp).toLocaleString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+        }
+
+        // Login with Google
+        async function signInWithGoogle() {
+          try {
+            const { data, error } = await supabase.auth.signInWithOAuth({
+              provider: 'google',
+              options: {
+                queryParams: {
+                  access_type: 'offline',
+                  prompt: 'consent',
+                  hd: 'iisc.ac.in',
+                },
+              },
+            });
+            
+            if (error) throw error;
+            
+            // Email domain restriction handled by hd param above
+          } catch (e) {
+            alert("Login failed: " + e.message);
+          }
+        }
+
+        // Login with Microsoft
+        async function signInWithMicrosoft() {
+          try {
+            const { data, error } = await supabase.auth.signInWithOAuth({
+              provider: 'azure',
+              options: {
+                queryParams: {
+                  domain_hint: 'iisc.ac.in',
+                },
+              },
+            });
+            
+            if (error) throw error;
+            // Email domain check will be performed in the auth state change listener
+          } catch (e) {
+            alert("Login failed: " + e.message);
+          }
+        }
+
+        // Email login/register with domain restriction
+        async function emailLogin() {
+          emailLoading.value = true;
+          try {
+            if (!emailLoginForm.email.endsWith("@iisc.ac.in")) {
+              alert("Only @iisc.ac.in emails are allowed.");
+              emailLoading.value = false;
+              return;
+            }
+            
+            // Try sign in first
+            const { data, error } = await supabase.auth.signInWithPassword({
+              email: emailLoginForm.email,
+              password: emailLoginForm.password
+            });
+            
+            if (error && error.status === 400) {
+              // User doesn't exist, try to sign up
+              const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                email: emailLoginForm.email,
+                password: emailLoginForm.password
+              });
+              
+              if (signUpError) throw signUpError;
+              
+              showLogin.value = false;
+              alert("Verification email sent. Please check your inbox.");
+            } else if (error) {
+              throw error;
+            } else {
+              showLogin.value = false;
+            }
+          } catch (e) {
+            alert("Login failed: " + e.message);
+          } finally {
+            emailLoading.value = false;
+          }
+        }
+
+        // Logout
+        async function logout() {
+          const { error } = await supabase.auth.signOut();
+          if (error) console.error("Logout error:", error);
+          user.value = null;
+        }
+
+        // Load players from Supabase
+        async function loadPlayers() {
+          try {
+            const { data, error } = await supabase
+              .from('players')
+              .select('*');
+            
+            if (error) throw error;
+            players.value = data || [];
+          } catch (e) {
+            console.error("Error loading players:", e);
+          }
+        }
+
+        // Submit player registration
+        async function submitPlayerRegistration() {
+          if (!user.value) {
+            alert("Please login first.");
+            return;
+          }
+          
+          playerLoading.value = true;
+          try {
+            // Use user display_name if available and playerForm.name empty
+            if (!playerForm.name && user.value.user_metadata?.full_name) {
+              playerForm.name = user.value.user_metadata.full_name;
+            }
+            
+            // Check if already registered
+            const existing = players.value.find(
+              (p) => p.email === user.value.email
+            );
+            
+            if (existing) {
+              alert("You are already registered as a player.");
+              playerLoading.value = false;
+              showPlayerRegister.value = false;
+              return;
+            }
+            
+            // Add player to Supabase
+            const newPlayer = {
+              name: playerForm.name,
+              email: user.value.email,
+              contact: playerForm.contact,
+              player_type: playerForm.player_type,
+              gender: playerGender.value,
+              department: playerForm.department,
+              year_of_study: parseInt(playerForm.year_of_study) || 1,
+              degree: playerForm.degree,
+              category: playerForm.category,
+            };
+            
+            const { data, error } = await supabase
+              .from('players')
+              .insert([newPlayer])
+              .select();
+              
+            if (error) throw error;
+            
+            players.value.push(data[0]);
+            alert("Player registered successfully.");
+            showPlayerRegister.value = false;
+            
+            // Reset form
+            playerForm.name = "";
+            playerForm.contact = "";
+            playerForm.player_type = "";
+            playerForm.department = "";
+            playerForm.year_of_study = "";
+            playerForm.degree = "";
+            playerForm.category = "";
+          } catch (e) {
+            alert("Registration failed: " + e.message);
+          } finally {
+            playerLoading.value = false;
+          }
+        }
+
+        // Load notifications from Supabase
+        async function loadNotifications() {
+          try {
+            const { data, error } = await supabase
+              .from('notifications')
+              .select('*')
+              .order('created_at', { ascending: false });
+              
+            if (error) throw error;
+            notifications.value = data || [];
+            
+            // Load poll results for each notification with poll
+            notifications.value.forEach((note) => {
+              if (note.poll) {
+                loadPollResults(note.id);
+              }
+            });
+          } catch (e) {
+            console.error("Error loading notifications:", e);
+          }
+        }
+
+        // Submit notification (convener only)
+        async function submitNotification() {
+          if (!isConvener.value) {
+            alert("Only conveners can post notifications.");
+            return;
+          }
+          
+          if (!notificationForm.title.trim()) {
+            alert("Title is required.");
+            return;
+          }
+          
+          notificationLoading.value = true;
+          try {
+            let poll = null;
+            if (
+              notificationForm.pollQuestion.trim() &&
+              notificationForm.pollOptions.length >= 2 &&
+              notificationForm.pollOptions.every((opt) => opt.trim() !== "")
+            ) {
+              poll = {
+                question: notificationForm.pollQuestion.trim(),
+                options: notificationForm.pollOptions.map((opt) => opt.trim()),
+              };
+            }
+            
+            const newNote = {
+              title: notificationForm.title.trim(),
+              message: notificationForm.message.trim() || null,
+              media_url: notificationForm.mediaUrl.trim() || null,
+              poll,
+              convener: {
+                name: user.value.user_metadata?.full_name || "Convener",
+                email: user.value.email,
+              },
+              created_at: new Date().toISOString(),
+            };
+            
+            const { data, error } = await supabase
+              .from('notifications')
+              .insert([newNote])
+              .select();
+              
+            if (error) throw error;
+            
+            notifications.value.unshift(data[0]);
+            if (poll) {
+              pollResults[data[0].id] = {};
+            }
+            
+            alert("Notification posted.");
+            showNotificationForm.value = false;
+            
+            // Reset form
+            notificationForm.title = "";
+            notificationForm.message = "";
+            notificationForm.mediaUrl = "";
+            notificationForm.pollQuestion = "";
+            notificationForm.pollOptions = [];
+          } catch (e) {
+            alert("Failed to post notification: " + e.message);
+          } finally {
+            notificationLoading.value = false;
+          }
+        }
+
+        // Add poll option
+        function addPollOption() {
+          if (notificationForm.pollOptions.length < 5) {
+            notificationForm.pollOptions.push("");
+          }
+        }
+        
+        // Remove poll option
+        function removePollOption(idx) {
+          notificationForm.pollOptions.splice(idx, 1);
+        }
+
+        // Submit poll vote
+        async function submitPollVote(noteId, option) {
+          if (!user.value) {
+            alert("Please login to vote.");
+            return;
+          }
+          
+          try {
+            const { data, error } = await supabase
+              .from('poll_votes')
+              .insert([
+                { 
+                  notification_id: noteId, 
+                  user_id: user.value.id, 
+                  option: option 
+                }
+              ])
+              .select();
+              
+            if (error && error.code === '23505') { // Unique violation
+              // Update existing vote
+              const { error: updateError } = await supabase
+                .from('poll_votes')
+                .update({ option: option })
+                .eq('notification_id', noteId)
+                .eq('user_id', user.value.id);
+                
+              if (updateError) throw updateError;
+            } else if (error) {
+              throw error;
+            }
+            
+            loadPollResults(noteId);
+          } catch (e) {
+            alert("Failed to submit vote: " + e.message);
+          }
+        }
+
+        // Load poll results
+        async function loadPollResults(noteId) {
+          try {
+            const { data, error } = await supabase
+              .from('poll_votes')
+              .select('option')
+              .eq('notification_id', noteId);
+              
+            if (error) throw error;
+            
+            const counts = {};
+            (data || []).forEach((vote) => {
+              if (vote.option) {
+                counts[vote.option] = (counts[vote.option] || 0) + 1;
+              }
+            });
+            
+            pollResults[noteId] = counts;
+          } catch (e) {
+            console.error("Error loading poll results:", e);
+          }
+        }
+
+        // Load alumni list
+        async function loadAlumni() {
+          try {
+            const { data, error } = await supabase
+              .from('alumni')
+              .select('*')
+              .order('name');
+              
+            if (error) throw error;
+            alumniList.value = data || [];
+          } catch (e) {
+            console.error("Error loading alumni:", e);
+          }
+        }
+
+        // Submit alumni registration
+        async function submitAlumniRegistration() {
+          if (!alumniForm.email.endsWith("@iisc.ac.in")) {
+            alert("Only @iisc.ac.in emails are allowed.");
+            return;
+          }
+          
+          alumniLoading.value = true;
+          try {
+            // Check if already registered
+            const existing = alumniList.value.find(
+              (a) => a.email.toLowerCase() === alumniForm.email.toLowerCase()
+            );
+            
+            if (existing) {
+              alert("You are already registered as alumni.");
+              alumniLoading.value = false;
+              return;
+            }
+            
+            const newAlum = {
+              name: alumniForm.name,
+              email: alumniForm.email,
+              contact: alumniForm.contact,
+              department: alumniForm.department,
+              created_at: new Date().toISOString(),
+            };
+            
+            const { data, error } = await supabase
+              .from('alumni')
+              .insert([newAlum])
+              .select();
+              
+            if (error) throw error;
+            
+            alumniList.value.push(data[0]);
+            alert("Alumni registered successfully.");
+            
+            // Reset form
+            alumniForm.name = "";
+            alumniForm.email = "";
+            alumniForm.contact = "";
+            alumniForm.department = "";
+          } catch (e) {
+            alert("Registration failed: " + e.message);
+          } finally {
+            alumniLoading.value = false;
+          }
+        }
+
+        // Load chat messages realtime
+        function loadChatMessages() {
+          supabase
+            .channel('public:messages')
+            .on('postgres_changes', 
+              { event: 'INSERT', schema: 'public', table: 'messages' }, 
+              payload => {
+                chatMessages.value.push(payload.new);
+                chatMessages.value.sort((a, b) => a.created_at - b.created_at);
+              }
+            )
+            .subscribe();
+            
+          // Initial load
+          supabase
+            .from('messages')
+            .select('*')
+            .order('created_at')
+            .then(({ data, error }) => {
+              if (error) {
+                console.error("Error loading messages:", error);
+                return;
+              }
+              chatMessages.value = data || [];
+            });
+        }
+
+        // Send chat message
+        async function sendMessage() {
+          if (!user.value) {
+            alert("Please login to chat.");
+            return;
+          }
+          
+          if (!isRegisteredPlayer.value) {
+            alert("You must register as a player to chat.");
+            return;
+          }
+          
+          if (!chatInput.value.trim()) return;
+          
+          const newMsg = {
+            user_id: user.value.id,
+            user_name: user.value.user_metadata?.full_name || user.value.email,
+            user_photo: user.value.user_metadata?.avatar_url || null,
+            text: chatInput.value.trim(),
+            created_at: new Date().toISOString(),
+          };
+          
+          try {
+            const { error } = await supabase
+              .from('messages')
+              .insert([newMsg]);
+              
+            if (error) throw error;
+            
+            chatInput.value = "";
+          } catch (e) {
+            alert("Failed to send message: " + e.message);
+          }
+        }
+
+        // Watch user changes to reload data
+        watch(
+          user,
+          (newUser) => {
+            if (newUser) {
+              loadPlayers();
+              loadNotifications();
+              loadAlumni();
+              loadChatMessages();
+            } else {
+              players.value = [];
+              notifications.value = [];
+              alumniList.value = [];
+              chatMessages.value = [];
+            }
+          },
+          { immediate: true }
+        );
+
+        // Supabase auth state listener
+        onMounted(() => {
+          supabase.auth.onAuthStateChange((event, session) => {
+            if (session && session.user) {
+              // Check email domain
+              if (session.user.email && session.user.email.endsWith('@iisc.ac.in')) {
+                user.value = session.user;
+              } else {
+                alert("Only @iisc.ac.in emails are allowed.");
+                supabase.auth.signOut();
+                user.value = null;
+              }
+            } else {
+              user.value = null;
+            }
+          });
+          
+          // Check current auth state
+          supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session && session.user) {
+              if (session.user.email && session.user.email.endsWith('@iisc.ac.in')) {
+                user.value = session.user;
+              }
+            }
+          });
+        });
+
+        return {
+          tab,
+          setTab,
+          tabTitle,
+          activeClass,
+          inactiveClass,
+          user,
+          showLogin,
+          showEmailLogin,
+          emailLoginForm,
+          emailLoading,
+          signInWithGoogle,
+          signInWithMicrosoft,
+          emailLogin,
+          logout,
+          showPlayerRegister,
+          playerForm,
+          playerLoading,
+          playerGender,
+          filteredPlayers,
+          players,
+          submitPlayerRegistration,
+          notifications,
+          showNotificationForm,
+          notificationForm,
+          notificationLoading,
+          addPollOption,
+          removePollOption,
+          submitNotification,
+          pollVotes,
+          pollResults,
+          submitPollVote,
+          isConvener,
+          alumniForm,
+          alumniLoading,
+          alumniList,
+          submitAlumniRegistration,
+          chatMessages,
+          chatInput,
+          sendMessage,
+          isRegisteredPlayer,
+          formatDate,
+          formatDateTime,
+        };
+      },
+    }).mount("#app");
+  </script>
+</body>
+</html>
