@@ -256,14 +256,14 @@ function checkSupabaseConfig() {
         
         // Add player to Supabase
         const newPlayer = {
-          Name: playerForm.name,
-          Email: user.value.email,
-          Contact: parseInt(playerForm.contact.replace(/\D/g, ''), 10),
-          Player_type: playerForm.player_type,
-          Department: playerForm.department,
-          Year_of_study: parseInt(playerForm.year_of_study) || 1,
-          Degree: playerForm.degree,
-          Category: playerGender.value,
+          name: playerForm.name,
+          email: user.value.email,
+          contact: parseInt(playerForm.contact.replace(/\D/g, ''), 10),
+          player_type: playerForm.player_type,
+          department: playerForm.department,
+          year_of_study: parseInt(playerForm.year_of_study) || 1,
+          degree: playerForm.degree,
+          category: playerGender.value,
         };
         
         const { error } = await supabase
