@@ -78,7 +78,7 @@ const app = createApp({
 
     // Filter players by gender
     const filteredPlayers = computed(() =>
-      players.value.filter((p) => p.Category === playerGender.value)
+      players.value.filter((p) => p.category === playerGender.value)
     );
 
     // Check if user is convener (for demo, hardcode convener emails)
@@ -222,6 +222,12 @@ function checkSupabaseConfig() {
           .select('*');
         
         if (error) throw error;
+        
+        // Debug log to check column names
+        if (data && data.length > 0) {
+          console.log("Sample player data:", data[0]);
+        }
+        
         players.value = data || [];
       } catch (e) {
         console.error("Error loading players:", e);
