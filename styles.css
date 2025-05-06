@@ -4,6 +4,7 @@
   --primary-hover: #4338ca;  /* Indigo 700 */
   --secondary-color: #4f46e5; /* Indigo 600 */
   --accent-color: #10b981;   /* Emerald 500 */
+  --lavender-color: #e0d7ff; /* New lavender color for hover effect */
   --text-dark: #1f2937;      /* Gray 800 */
   --text-light: #f9fafb;     /* Gray 50 */
   --gray-100: #f3f4f6;
@@ -47,7 +48,7 @@ nav.sidebar {
 }
 
 .nav-link:hover {
-  background-color: var(--gray-100);
+  background-color: var(--lavender-color);
 }
 
 .nav-link.active {
