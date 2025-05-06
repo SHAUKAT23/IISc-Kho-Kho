@@ -78,14 +78,13 @@ const app = createApp({
 
     // Filter players by gender
     const filteredPlayers = computed(() =>
-      players.value.filter((p) => p.gender === playerGender.value)
+      players.value.filter((p) => p.category === playerGender.value)
     );
 
     // Check if user is convener (for demo, hardcode convener emails)
     const convenerEmails = [
-      "convener1@iisc.ac.in",
-      "convener2@iisc.ac.in",
-      "convener3@iisc.ac.in",
+      "shaukataziz@iisc.ac.in",
+      "sakshisoni@iisc.ac.in",
     ];
     const isConvener = computed(() =>
       user.value ? convenerEmails.includes(user.value.email) : false
@@ -264,7 +263,7 @@ function checkSupabaseConfig() {
           department: playerForm.department,
           year_of_study: parseInt(playerForm.year_of_study) || 1,
           degree: playerForm.degree,
-          category: playerForm.category,
+          category: playerGender.value,
         };
         
         const { data, error } = await supabase
