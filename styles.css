@@ -260,3 +260,41 @@ input:focus, select:focus, textarea:focus {
     max-width: 90%;
   }
 }
+
+
+/* YouTube-like media player styles */
+.media-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.video-player-container {
+  width: 100%;
+  background-color: black;
+  overflow: hidden;
+}
+
+/* Comment section styles */
+.media-container input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* Related videos hover effect */
+.media-container .hover\:shadow-md:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Thumbnail time indicator */
+.media-container .bg-opacity-70 {
+  font-size: 0.75rem;
+  padding: 0.125rem 0.25rem;
+}
+
+/* Line clamp for video titles */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

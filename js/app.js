@@ -65,6 +65,8 @@ const app = createApp({
           return "Alumni";
         case "chat":
           return "Chat";
+        case "media":
+          return "Kho-Kho Media";
         case "account":
           return user.value ? "Your Account" : "Login / Register";
         default:
