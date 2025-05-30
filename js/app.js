@@ -74,7 +74,9 @@ const app = createApp({
       }
     });
 
+    
     function setTab(t) {
+      console.log("Setting tab to:", t);
       tab.value = t;
     }
 
