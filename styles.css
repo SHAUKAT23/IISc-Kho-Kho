@@ -184,6 +184,24 @@ input:focus, select:focus, textarea:focus {
   border-bottom-left-radius: 0.25rem;
 }
 
+
+.message:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.message-user:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.message-other:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Show delete button on hover */
+.message:hover .opacity-0 {
+  opacity: 1 !important;
+}
+
 .chat-form {
   display: flex;
   padding: 1rem;

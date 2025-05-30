@@ -383,6 +383,7 @@ function checkSupabaseConfig() {
         alumniLoading.value = false;
       }
     }
+
     // Load chat messages
     async function loadChatMessages() {
       try {
@@ -395,13 +396,20 @@ function checkSupabaseConfig() {
         if (error) throw error;
         chatMessages.value = data || [];
         
-        // Then set up real-time subscription
+        // Set up real-time subscription for both INSERT and DELETE
         supabase
           .channel('public:messages')
           .on('postgres_changes', 
             { event: 'INSERT', schema: 'public', table: 'messages' }, 
             payload => {
               chatMessages.value.push(payload.new);
+            }
+          )
+          .on('postgres_changes', 
+            { event: 'DELETE', schema: 'public', table: 'messages' }, 
+            payload => {
+              // Remove deleted message from local array
+              chatMessages.value = chatMessages.value.filter(msg => msg.id !== payload.old.id);
             }
           )
           .subscribe();
@@ -444,6 +452,41 @@ function checkSupabaseConfig() {
       } catch (e) {
         console.error("Chat error:", e);
         alert("Failed to send message: " + e.message);
+      }
+    }
+
+    // Delete/unsend a message
+    async function deleteMessage(messageId, messageUserId) {
+      if (!user.value) {
+        alert("Please login to delete messages.");
+        return;
+      }
+      
+      // Check if user owns this message
+      if (messageUserId !== user.value.id) {
+        alert("You can only delete your own messages.");
+        return;
+      }
+      
+      if (!confirm("Are you sure you want to delete this message?")) {
+        return;
+      }
+      
+      try {
+        const { error } = await supabase
+          .from('messages')
+          .delete()
+          .eq('id', messageId)
+          .eq('user_id', user.value.id); // Extra security check
+          
+        if (error) throw error;
+        
+        // Remove message from local array
+        chatMessages.value = chatMessages.value.filter(msg => msg.id !== messageId);
+        
+      } catch (e) {
+        console.error("Delete message error:", e);
+        alert("Failed to delete message: " + e.message);
       }
     }
 
@@ -532,6 +575,7 @@ function checkSupabaseConfig() {
       chatMessages,
       chatInput,
       sendMessage,
+      deleteMessage, // Add this line
       isRegisteredPlayer,
       formatDate,
       formatDateTime,

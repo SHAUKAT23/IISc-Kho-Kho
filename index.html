@@ -412,18 +412,30 @@
               :key="msg.id" 
               :class="[msg.user_id === user?.id ? 'message message-user' : 'message message-other', 'fade-in']"
             >
-              <div class="flex items-center space-x-2 mb-1">
-                <img
-                  :src="msg.user_photo || 'https://placehold.co/32x32/png?text=User'"
-                  alt="User profile picture"
-                  class="h-8 w-8 rounded-full object-cover"
-                />
-                <span class="font-medium text-sm">{{ msg.user_name }}</span>
+              <div class="flex items-start justify-between">
+                <div class="flex items-center space-x-2 mb-1">
+                  <img
+                    :src="msg.user_photo || 'https://placehold.co/32x32/png?text=User'"
+                    alt="User profile picture"
+                    class="h-8 w-8 rounded-full object-cover"
+                  />
+                  <span class="font-medium text-sm">{{ msg.user_name }}</span>
+                  <span class="text-xs text-gray-500">{{ formatDateTime(msg.created_at) }}</span>
+                </div>
+                
+                <!-- Delete button - only show for message owner -->
+                <button
+                  v-if="msg.user_id === user?.id"
+                  @click="deleteMessage(msg.id, msg.user_id)"
+                  class="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 text-xs p-1"
+                  title="Delete message"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
               </div>
               <p class="text-gray-800">{{ msg.text }}</p>
             </div>
-          </div>
-          
+            
           <!-- Chat input form -->
           <div v-if="user && isRegisteredPlayer" class="mt-4">
             <form @submit.prevent="sendMessage" class="flex space-x-2">
