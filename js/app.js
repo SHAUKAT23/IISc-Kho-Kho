@@ -380,66 +380,31 @@ function checkSupabaseConfig() {
         alumniLoading.value = false;
       }
     }
-
-    // Load chat messages realtime
-    function loadChatMessages() {
-      supabase
-        .channel('public:messages')
-        .on('postgres_changes', 
-          { event: 'INSERT', schema: 'public', table: 'messages' }, 
-          payload => {
-            chatMessages.value.push(payload.new);
-            chatMessages.value.sort((a, b) => a.created_at - b.created_at);
-          }
-        )
-        .subscribe();
-        
-      // Initial load
-      supabase
-        .from('messages')
-        .select('*')
-        .order('created_at')
-        .then(({ data, error }) => {
-          if (error) {
-            console.error("Error loading messages:", error);
-            return;
-          }
-          chatMessages.value = data || [];
-        });
-    }
-
-    // Send chat message
-    async function sendMessage() {
-      if (!user.value) {
-        alert("Please login to chat.");
-        return;
-      }
-      
-      if (!isRegisteredPlayer.value) {
-        alert("You must register as a player to chat.");
-        return;
-      }
-      
-      if (!chatInput.value.trim()) return;
-      
-      const newMsg = {
-        user_id: user.value.id,
-        user_name: user.value.user_metadata?.full_name || user.value.email,
-        user_photo: user.value.user_metadata?.avatar_url || null,
-        text: chatInput.value.trim(),
-        created_at: new Date().toISOString(),
-      };
-      
+    // Load chat messages
+    async function loadChatMessages() {
       try {
-        const { error } = await supabase
+        // First load existing messages
+        const { data, error } = await supabase
           .from('messages')
-          .insert([newMsg]);
+          .select('*')
+          .order('created_at');
           
         if (error) throw error;
+        chatMessages.value = data || [];
         
-        chatInput.value = "";
+        // Then set up real-time subscription
+        supabase
+          .channel('public:messages')
+          .on('postgres_changes', 
+            { event: 'INSERT', schema: 'public', table: 'messages' }, 
+            payload => {
+              chatMessages.value.push(payload.new);
+            }
+          )
+          .subscribe();
+          
       } catch (e) {
-        alert("Failed to send message: " + e.message);
+        console.error("Error loading messages:", e);
       }
     }
 

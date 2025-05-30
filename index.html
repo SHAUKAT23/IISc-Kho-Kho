@@ -403,10 +403,7 @@
 
         <!-- Chat Tab -->
         <div v-if="tab === 'chat'" class="chat-container">
-          <div
-            id="chatMessages"
-            class="chat-messages card"
-          >
+          <div id="chatMessages" class="chat-messages card">
             <div v-if="chatMessages.length === 0" class="text-gray-500 text-center py-10">
               No messages yet. Start the conversation!
             </div>
@@ -417,39 +414,42 @@
             >
               <div class="flex items-center space-x-2 mb-1">
                 <img
-                  :src="msg.userPhoto || 'https://placehold.co/32x32/png?text=User'"
+                  :src="msg.user_photo || 'https://placehold.co/32x32/png?text=User'"
                   alt="User profile picture"
                   class="h-8 w-8 rounded-full object-cover"
                 />
-                <span class="font-semibold">{{ msg.userName }}</span>
-                <span class="text-xs opacity-75">{{ formatDateTime(msg.createdAt) }}</span>
+                <span class="font-medium text-sm">{{ msg.user_name }}</span>
               </div>
-              <p class="whitespace-pre-wrap">{{ msg.text }}</p>
+              <p class="text-gray-800">{{ msg.text }}</p>
             </div>
           </div>
-          <form @submit.prevent="sendMessage" class="chat-form">
-            <input
-              v-model="chatInput"
-              type="text"
-              placeholder="Type your message..."
-              :disabled="!user || !isRegisteredPlayer"
-              class="chat-input"
-              required
-            />
-            <button
-              type="submit"
-              :disabled="!user || !isRegisteredPlayer || chatInput.trim() === ''"
-              class="btn btn-primary"
-            >
-              Send
-            </button>
-          </form>
-          <p v-if="!user" class="text-error-color mt-2 text-center text-sm">
-            Please login to participate in chat.
-          </p>
-          <p v-else-if="user && !isRegisteredPlayer" class="text-error-color mt-2 text-center text-sm">
-            You must register as a player to chat.
-          </p>
+          
+          <!-- Chat input form -->
+          <div v-if="user && isRegisteredPlayer" class="mt-4">
+            <form @submit.prevent="sendMessage" class="flex space-x-2">
+              <input
+                v-model="chatInput"
+                type="text"
+                placeholder="Type your message..."
+                class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="submit"
+                :disabled="!chatInput.trim()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium disabled:opacity-50"
+              >
+                Send
+              </button>
+            </form>
+          </div>
+          
+          <div v-else-if="user && !isRegisteredPlayer" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+            <p class="text-yellow-800">You must register as a player to participate in chat.</p>
+          </div>
+          
+          <div v-else class="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-md">
+            <p class="text-gray-700">Please login to participate in chat.</p>
+          </div>
         </div>
 
         <!-- Media Tab -->
