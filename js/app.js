@@ -102,9 +102,12 @@ const app = createApp({
     const isRegisteredPlayer = computed(() => {
       if (!user.value) return false;
       return players.value.some(
-        (p) =>
-          p.email === user.value.email &&
-          p.name.toLowerCase() === (user.value.display_name || "").toLowerCase()
+        (p) => {
+          // Case-insensitive email comparison
+          const playerEmail = (p.email || p.Email || "").toLowerCase();
+          const userEmail = user.value.email.toLowerCase();
+          return playerEmail === userEmail;
+        }
       );
     });
 
@@ -405,6 +408,42 @@ function checkSupabaseConfig() {
           
       } catch (e) {
         console.error("Error loading messages:", e);
+      }
+    }
+
+
+    // Send chat message
+    async function sendMessage() {
+      if (!user.value) {
+        alert("Please login to chat.");
+        return;
+      }
+      
+      if (!isRegisteredPlayer.value) {
+        alert("You must register as a player to chat.");
+        return;
+      }
+      
+      if (!chatInput.value.trim()) return;
+      
+      try {
+        const newMsg = {
+          user_id: user.value.id,
+          user_name: user.value.user_metadata?.full_name || user.value.email,
+          user_photo: user.value.user_metadata?.avatar_url || null,
+          text: chatInput.value.trim(),
+        };
+        
+        const { error } = await supabase
+          .from('messages')
+          .insert([newMsg]);
+          
+        if (error) throw error;
+        
+        chatInput.value = "";
+      } catch (e) {
+        console.error("Chat error:", e);
+        alert("Failed to send message: " + e.message);
       }
     }
 
