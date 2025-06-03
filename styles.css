@@ -162,14 +162,6 @@ input:focus, select:focus, textarea:focus {
   max-height: 70vh;
   margin-bottom: 1rem;
 }
-
-.message {
-  max-width: 80%;
-  margin-bottom: 1rem;
-  padding: 0.75rem 1rem;
-  border-radius: 1rem;
-}
-
 .message-user {
   align-self: flex-end;
   background-color: var(--primary-color);
@@ -177,29 +169,36 @@ input:focus, select:focus, textarea:focus {
   border-bottom-right-radius: 0.25rem;
 }
 
-.message-other {
-  align-self: flex-start;
-  background-color: var(--gray-200);
-  color: var(--text-dark);
-  border-bottom-left-radius: 0.25rem;
-}
 
+.message {
+  transition: all 0.2s ease;
+}
 
 .message:hover {
   background-color: rgba(0, 0, 0, 0.02);
 }
 
 .message-user:hover {
-  background-color: rgba(59, 130, 246, 0.05);
+  background-color: rgba(59, 130, 246, 0.1);
 }
 
 .message-other:hover {
   background-color: rgba(0, 0, 0, 0.02);
 }
 
-/* Show delete button on hover */
-.message:hover .opacity-0 {
+.group:hover .opacity-0 {
   opacity: 1 !important;
+}
+
+.media-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.video-player-container {
+  background-color: #000;
+  border-radius: 8px 8px 0 0;
+  overflow: hidden;
 }
 
 .chat-form {
@@ -280,18 +279,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 
-/* YouTube-like media player styles */
 
-.media-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.video-player-container {
-  background-color: #000;
-  border-radius: 8px 8px 0 0;
-  overflow: hidden;
-}
 
 .nav-link {
   display: flex;
