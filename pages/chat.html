@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="http://localhost:35729/livereload.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat - IISc Kho-Kho</title>
+</head>
+<body>
+<div class="p-4 flex flex-col h-full">
+  <h2 class="text-2xl font-bold mb-4">Team Chat</h2>
+  
+  <div v-if="!user" class="bg-yellow-50 border border-yellow-300 text-yellow-800 p-4 rounded-md mb-6">
+    <h3 class="font-semibold text-lg">Please Login</h3>
+    <p>You must be logged in to access the chat.</p>
+  </div>
+  
+  <div v-else-if="!isRegisteredPlayer" class="bg-yellow-50 border border-yellow-300 text-yellow-800 p-4 rounded-md mb-6">
+    <h3 class="font-semibold text-lg">Registration Required</h3>
+    <p>You must register as a player to access the team chat.</p>
+    <button 
+      @click="setTab('players')" 
+      class="mt-4 bg-yellow-700 hover:bg-yellow-800 text-white py-2 px-4 rounded-md transition-colors">
+      Go to Player Registration
+    </button>
+  </div>
+  
+  <!-- Chat Interface -->
+  <div v-else class="flex flex-col h-full">
+    <!-- Chat Messages -->
+    <div 
+      id="chatMessages" 
+      class="flex-1 overflow-y-auto p-4 space-y-4 border border-gray-200 rounded-md bg-gray-50 mb-4 h-96"
+    >
+      <template v-if="chatMessages.length === 0">
+        <div class="text-center py-10 text-gray-500">
+          No messages yet. Start the conversation!
+        </div>
+      </template>
+      
+      <template v-else>
+        <div 
+          v-for="message in chatMessages" 
+          :key="message.id" 
+          :class="message.user_id === user?.uid ? 'ml-auto max-w-xs md:max-w-md' : 'mr-auto max-w-xs md:max-w-md'"
+          class="rounded-lg p-4 shadow-sm"
+          :style="message.user_id === user?.uid ? 'background-color: #e3f2fd;' : 'background-color: #f5f5f5;'"
+        >
+          <div class="flex items-start">
+            <div class="flex-shrink-0 mr-3">
+              <div v-if="message.user_photo" class="h-8 w-8 rounded-full overflow-hidden">
+                <img :src="message.user_photo" alt="Profile" class="h-full w-full object-cover">
+              </div>
+              <div v-else class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
+                <span class="text-white font-medium text-sm">{{ message.user_name?.charAt(0).toUpperCase() }}</span>
+              </div>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-gray-900">
+                  {{ message.user_name }}
+                </p>
+                <span class="text-xs text-gray-500">
+                  {{ formatDateTime(message.timestamp) }}
+                </span>
+              </div>
+              
+              <p class="text-sm text-gray-800 mt-1 break-words">
+                {{ message.text }}
+              </p>
+              
+              <!-- Delete button for own messages or conveners -->
+              <button 
+                v-if="message.user_id === user?.uid || isConvener"
+                @click="deleteMessage(message.id)" 
+                class="text-xs text-red-500 mt-1 opacity-60 hover:opacity-100"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+    
+    <!-- Message Input -->
+    <div class="mt-auto">
+      <form @submit.prevent="sendMessage" class="flex space-x-2">
+        <input 
+          v-model="chatInput"
+          type="text" 
+          placeholder="Type your message..."
+          class="flex-1 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          autocomplete="off"
+        >
+        <button 
+          type="submit"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+          :disabled="!chatInput.trim()"
+        >
+          <i class="fas fa-paper-plane mr-2"></i> Send
+        </button>
+      </form>
+      
+      <p class="text-xs text-gray-500 mt-2">
+        This chat is only accessible to registered team members.
+      </p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

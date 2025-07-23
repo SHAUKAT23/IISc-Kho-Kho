@@ -1,0 +1,312 @@
+<div class="p-6">
+  <h2 class="text-2xl font-bold mb-4">Players</h2>
+  
+  <!-- Gender Filter -->
+  <div class="mb-6">
+    <div class="inline-flex rounded-lg border border-gray-200 p-1">
+      <button 
+        id="menTeamBtn"
+        class="px-4 py-2 rounded-lg transition-colors bg-blue-500 text-white">
+        Men's Team
+      </button>
+      <button 
+        id="womenTeamBtn"
+        class="px-4 py-2 rounded-lg transition-colors text-gray-600">
+        Women's Team
+      </button>
+    </div>
+  </div>
+
+  <!-- Toggle form visibility -->
+  <button id="addPlayerBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md mb-6">
+    Add New Player
+  </button>
+  
+  <!-- Player registration form (initially hidden) -->
+  <div id="playerForm" class="mb-6 bg-white p-6 rounded-md shadow hidden">
+    <h3 class="text-lg font-semibold mb-4">Register as Player</h3>
+    <form id="registrationForm" class="space-y-4">
+      <div>
+        <label for="playerName" class="block text-sm font-medium text-gray-700">Full Name</label>
+        <input
+          id="playerName"
+          type="text"
+          required
+          placeholder="Enter your full name"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+        />
+      </div>
+      <div>
+        <label for="playerContact" class="block text-sm font-medium text-gray-700">Contact Number</label>
+        <input
+          id="playerContact"
+          type="tel"
+          required
+          pattern="[0-9]{10,15}"
+          placeholder="10-15 digit number"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+        />
+      </div>
+      <div>
+        <label for="playerType" class="block text-sm font-medium text-gray-700">Type of Player</label>
+        <select
+          id="playerType"
+          required
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+        >
+          <option disabled value="" selected>Select</option>
+          <option value="attack">Attack</option>
+          <option value="defense">Defense</option>
+        </select>
+      </div>
+      <div>
+        <label for="playerDept" class="block text-sm font-medium text-gray-700">Department</label>
+        <input
+          id="playerDept"
+          type="text"
+          required
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+        />
+      </div>
+      <div>
+        <label for="playerDegreeType" class="block text-sm font-medium text-gray-700">Degree Type</label>
+        <select
+          id="playerDegreeType"
+          required
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+        >
+          <option disabled value="" selected>Select</option>
+          <option value="UG">UG</option>
+          <option value="Masters">Masters</option>
+          <option value="PhD">PhD</option>
+        </select>
+      </div>
+      <div>
+        <label for="playerCategory" class="block text-sm font-medium text-gray-700">Category</label>
+        <select
+          id="playerCategory"
+          required
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-600 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+        >
+          <option disabled value="" selected>Select</option>
+          <option value="men">Men</option>
+          <option value="women">Women</option>
+        </select>
+      </div>
+      <button
+        type="submit"
+        id="submitPlayerButton"
+        class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-semibold focus:outline-none"
+      >
+        Register as Player
+      </button>
+      <p id="loginMessage" class="text-red-500 text-center text-sm hidden">
+        Please login first to register as a player.
+      </p>
+    </form>
+  </div>
+  
+  <div id="playersList" class="flex flex-col items-center">
+    <div class="text-center mb-8">
+      <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+      <h3 class="mt-2 text-xl font-medium text-gray-900">No players found</h3>
+      <p class="mt-1 text-gray-500" id="noPlayersMessage">No players have been added for the men's team yet.</p>
+    </div>
+  </div>
+  
+  <!-- Players table (will be populated with JavaScript) -->
+  <div id="playersTable" class="overflow-x-auto hidden">
+    <table class="min-w-full bg-white rounded-md shadow">
+      <thead class="bg-gray-100 border-b border-gray-300">
+        <tr>
+          <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Name</th>
+          <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Contact</th>
+          <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Department</th>
+          <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Type</th>
+          <th class="text-left px-4 py-2 text-sm font-semibold text-gray-700">Degree Type</th>
+        </tr>
+      </thead>
+      <tbody id="playersTableBody">
+        <!-- Table rows will be inserted here by JavaScript -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // This script will run once the page is loaded in the content area
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('Players page script initialized');
+    
+    // Get references to elements
+    const menTeamBtn = document.getElementById('menTeamBtn');
+    const womenTeamBtn = document.getElementById('womenTeamBtn');
+    const addPlayerBtn = document.getElementById('addPlayerBtn');
+    const playerForm = document.getElementById('playerForm');
+    const registrationForm = document.getElementById('registrationForm');
+    const playersList = document.getElementById('playersList');
+    const playersTable = document.getElementById('playersTable');
+    const playersTableBody = document.getElementById('playersTableBody');
+    const noPlayersMessage = document.getElementById('noPlayersMessage');
+    const loginMessage = document.getElementById('loginMessage');
+    
+    // Set up event listeners
+    if (menTeamBtn) {
+      menTeamBtn.addEventListener('click', () => {
+        setGender('men');
+      });
+    }
+    
+    if (womenTeamBtn) {
+      womenTeamBtn.addEventListener('click', () => {
+        setGender('women');
+      });
+    }
+    
+    if (addPlayerBtn) {
+      addPlayerBtn.addEventListener('click', () => {
+        togglePlayerForm();
+      });
+    }
+    
+    if (registrationForm) {
+      registrationForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitPlayerRegistration();
+      });
+    }
+    
+    // Initialize page with men's team selected
+    setGender('men');
+    loadPlayers('men');
+    
+    // Check if user is logged in
+    checkUserLogin();
+    
+    function setGender(gender) {
+      console.log('Setting gender to', gender);
+      if (gender === 'men') {
+        menTeamBtn.classList.add('bg-blue-500', 'text-white');
+        menTeamBtn.classList.remove('text-gray-600');
+        womenTeamBtn.classList.add('text-gray-600');
+        womenTeamBtn.classList.remove('bg-blue-500', 'text-white');
+        noPlayersMessage.textContent = "No players have been added for the men's team yet.";
+      } else {
+        womenTeamBtn.classList.add('bg-blue-500', 'text-white');
+        womenTeamBtn.classList.remove('text-gray-600');
+        menTeamBtn.classList.add('text-gray-600');
+        menTeamBtn.classList.remove('bg-blue-500', 'text-white');
+        noPlayersMessage.textContent = "No players have been added for the women's team yet.";
+      }
+      
+      // Load players for the selected gender
+      loadPlayers(gender);
+    }
+    
+    function togglePlayerForm() {
+      playerForm.classList.toggle('hidden');
+      addPlayerBtn.textContent = playerForm.classList.contains('hidden') ? 
+        'Add New Player' : 'Hide Form';
+    }
+    
+    function checkUserLogin() {
+      // Check if Firebase auth is initialized and user is logged in
+      if (window.auth && window.auth.currentUser) {
+        loginMessage.classList.add('hidden');
+      } else {
+        loginMessage.classList.remove('hidden');
+      }
+    }
+    
+    function loadPlayers(gender) {
+      // Clear existing table rows
+      playersTableBody.innerHTML = '';
+      
+      // Show loading state
+      playersList.classList.remove('hidden');
+      playersTable.classList.add('hidden');
+      
+      // Check if Firestore is available
+      if (window.db) {
+        try {
+          console.log('Loading players for gender:', gender);
+          
+          // Query Firestore for players
+          const playersRef = window.db.collection('players');
+          playersRef.where('category', '==', gender).get()
+            .then((snapshot) => {
+              if (snapshot.empty) {
+                console.log('No players found');
+                playersList.classList.remove('hidden');
+                playersTable.classList.add('hidden');
+                return;
+              }
+              
+              // We have players, hide the "no players" message and show the table
+              playersList.classList.add('hidden');
+              playersTable.classList.remove('hidden');
+              
+              // Populate table with player data
+              snapshot.forEach(doc => {
+                const player = doc.data();
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-50';
+                
+                row.innerHTML = `
+                  <td class="px-4 py-2 text-gray-800">${player.name || ''}</td>
+                  <td class="px-4 py-2 text-gray-800">${player.contact || ''}</td>
+                  <td class="px-4 py-2 text-gray-800">${player.department || ''}</td>
+                  <td class="px-4 py-2 text-gray-800 capitalize">${player.player_type || ''}</td>
+                  <td class="px-4 py-2 text-gray-800">${player.degreeType || ''}</td>
+                `;
+                
+                playersTableBody.appendChild(row);
+              });
+            })
+            .catch((error) => {
+              console.error('Error getting players:', error);
+            });
+        } catch (error) {
+          console.error('Error in loadPlayers:', error);
+        }
+      } else {
+        console.error('Firestore database not initialized');
+      }
+    }
+    
+    function submitPlayerRegistration() {
+      // Check if user is logged in
+      if (!window.auth || !window.auth.currentUser) {
+        alert('Please log in to register as a player');
+        return;
+      }
+      
+      const playerData = {
+        name: document.getElementById('playerName').value,
+        contact: document.getElementById('playerContact').value,
+        player_type: document.getElementById('playerType').value,
+        department: document.getElementById('playerDept').value,
+        degreeType: document.getElementById('playerDegreeType').value,
+        category: document.getElementById('playerCategory').value,
+        created_at: window.firebase.firestore.FieldValue.serverTimestamp()
+      };
+      
+      console.log('Submitting player data:', playerData);
+      
+      // Add to Firestore
+      window.db.collection('players').add(playerData)
+        .then(() => {
+          alert('Player registered successfully!');
+          registrationForm.reset();
+          togglePlayerForm();
+          loadPlayers(playerData.category);
+        })
+        .catch((error) => {
+          console.error('Error adding player:', error);
+          alert('Error registering player: ' + error.message);
+        });
+    }
+  });
+</script>

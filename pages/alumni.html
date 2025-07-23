@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="http://localhost:35729/livereload.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alumni - IISc Kho-Kho</title>
+</head>
+<body>
+<div class="p-6">
+  <h2 class="text-2xl font-bold mb-4">Alumni Network</h2>
+  
+  <!-- Registration Form -->
+  <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+    <h3 class="text-lg font-semibold mb-4">Register as an Alumni</h3>
+    
+    <form @submit.prevent="submitAlumniRegistration" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Full Name</label>
+        <input v-model="alumniForm.name" type="text" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2">
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Email</label>
+        <input v-model="alumniForm.email" type="email" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2">
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Contact</label>
+        <input v-model="alumniForm.contact" type="text" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2">
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Department at IISc</label>
+        <input v-model="alumniForm.department" type="text" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2">
+      </div>
+      
+      <button 
+        type="submit"
+        :disabled="alumniLoading"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-medium transition-colors disabled:opacity-50">
+        {{ alumniLoading ? 'Submitting...' : 'Register' }}
+      </button>
+    </form>
+  </div>
+  
+  <!-- Alumni List -->
+  <div>
+    <h3 class="text-lg font-semibold mb-4">Alumni Members</h3>
+    
+    <div v-if="alumniList.length === 0" class="text-center py-12 bg-white rounded-lg shadow-md">
+      <i class="fas fa-graduation-cap text-4xl text-gray-400 mb-4"></i>
+      <h4 class="text-lg font-medium text-gray-900 mb-2">No alumni registered yet</h4>
+      <p class="text-gray-500">Be the first to register as an alumni member.</p>
+    </div>
+    
+    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div 
+        v-for="alumni in alumniList" 
+        :key="alumni.id" 
+        class="bg-white rounded-lg shadow-md p-6"
+      >
+        <div class="flex items-center space-x-4">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+              <span class="text-xl text-blue-600">{{ alumni.name.charAt(0) }}</span>
+            </div>
+          </div>
+          
+          <div class="flex-1 min-w-0">
+            <p class="text-lg font-semibold text-gray-900 truncate">
+              {{ alumni.name }}
+            </p>
+            <p class="text-sm text-gray-500">
+              {{ alumni.department }}
+            </p>
+            <p class="text-sm text-gray-500">
+              {{ alumni.email }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

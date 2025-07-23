@@ -1,0 +1,93 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read access to all authenticated users
+    match /{document=**} {
+      allow read: if request.auth != null;
+    }
+    
+    // Players collection
+    match /players/{playerId} {
+      // Allow create if user is authenticated with IISc email
+      allow create: if request.auth != null &&
+                     request.auth.token.email.matches('.*@iisc\\.ac\\.in$') &&
+                     validatePlayerFields(request.resource.data);
+      
+      // Allow update if user is convener or the user is updating their own record
+      allow update: if request.auth != null &&
+                     (isConvener() || 
+                     (resource.data.email == request.auth.token.email)) &&
+                     validatePlayerFields(request.resource.data);
+      
+      // Allow delete if user is convener
+      allow delete: if request.auth != null && isConvener();
+    }
+    
+    // Notifications collection
+    match /notifications/{notificationId} {
+      // Only conveners can create/update/delete notifications
+      allow create, update, delete: if request.auth != null && isConvener();
+    }
+    
+    // Messages collection (chat)
+    match /messages/{messageId} {
+      // Allow create if user is authenticated and registered as a player
+      allow create: if request.auth != null &&
+                     request.auth.token.email.matches('.*@iisc\\.ac\\.in$') &&
+                     isRegisteredPlayer() &&
+                     validateMessageFields(request.resource.data);
+      
+      // Allow delete if user is the message creator or a convener
+      allow delete: if request.auth != null && 
+                     (resource.data.user_id == request.auth.uid || isConvener());
+    }
+    
+    // Alumni collection
+    match /alumni/{alumniId} {
+      // Anyone can create an alumni entry
+      allow create: if request.auth != null &&
+                     validateAlumniFields(request.resource.data);
+      
+      // Only conveners or the user themselves can update/delete
+      allow update, delete: if request.auth != null && 
+                             (isConvener() || resource.data.email == request.auth.token.email);
+    }
+    
+    // Helper functions
+    function isConvener() {
+      return request.auth.token.email in ['shaukataziz@iisc.ac.in', 'sakshisoni@iisc.ac.in'];
+    }
+    
+    function isRegisteredPlayer() {
+      // Check if user is registered as a player
+      return exists(/databases/$(database)/documents/players/$(request.auth.uid)) ||
+             (get(/databases/$(database)/documents/players/$(request.auth.uid))).data.email == request.auth.token.email;
+    }
+    
+    function validatePlayerFields(data) {
+      // Validate required player fields
+      return data.name is string && data.name.size() > 0 &&
+             data.contact is string &&
+             data.department is string &&
+             data.degreeType is string && 
+             data.degreeType in ['UG', 'Masters', 'PhD'] &&
+             data.category is string && 
+             (data.category.lower() == 'men' || data.category.lower() == 'women');
+    }
+    
+    function validateMessageFields(data) {
+      // Validate required message fields
+      return data.user_id is string &&
+             data.user_name is string &&
+             data.text is string && data.text.size() > 0 &&
+             data.timestamp is timestamp;
+    }
+    
+    function validateAlumniFields(data) {
+      // Validate required alumni fields
+      return data.name is string && data.name.size() > 0 &&
+             data.email is string && data.email.size() > 0 &&
+             data.department is string;
+    }
+  }
+}

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="http://localhost:35729/livereload.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Players - IISc Kho-Kho</title>
+</head>
+<body>
+<div class="p-6">
+  <h2 class="text-2xl font-bold mb-4">Players</h2>
+  
+  <!-- Gender Filter -->
+  <div class="mb-6">
+    <div class="inline-flex rounded-lg border border-gray-200 p-1">
+      <button 
+        @click="playerGender = 'men'" 
+        :class="playerGender === 'men' ? 'bg-blue-500 text-white' : 'text-gray-600'"
+        class="px-4 py-2 rounded-lg transition-colors">
+        Men's Team
+      </button>
+      <button 
+        @click="playerGender = 'women'" 
+        :class="playerGender === 'women' ? 'bg-blue-500 text-white' : 'text-gray-600'"
+        class="px-4 py-2 rounded-lg transition-colors">
+        Women's Team
+      </button>
+    </div>
+  </div>
+
+  <!-- Add Player Button -->
+  <div class="mb-6">
+    <button id="addPlayerBtn" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+      Add New Player
+    </button>
+  </div>
+
+  <!-- Add Player Form Modal -->
+  <div id="playerModal" style="display: none;" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full relative">
+      <!-- Close Button -->
+      <button id="closePlayerModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl leading-none">&times;</button>
+      <h3 class="text-xl font-bold mb-4">Add New Player</h3>
+      <form @submit.prevent="addPlayer" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Name</label>
+          <input v-model="playerForm.name" type="text" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Contact</label>
+          <input v-model="playerForm.contact" type="text" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Department</label>
+          <input v-model="playerForm.department" type="text" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Degree Type</label>
+          <select v-model="playerForm.degreeType" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2">
+            <option value="">Select Degree Type</option>
+            <option value="UG">UG</option>
+            <option value="Masters">Masters</option>
+            <option value="PhD">PhD</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Category</label>
+          <select v-model="playerForm.category" required class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2">
+            <option value="men">Men's Team</option>
+            <option value="women">Women's Team</option>
+          </select>
+        </div>
+        <div class="flex justify-end space-x-3 mt-6">
+          <button 
+            type="button" 
+            @click="showPlayerForm = false"
+            class="px-4 py-2 border rounded-md hover:bg-gray-50">
+            Cancel
+          </button>
+          <button 
+            type="submit"
+            :disabled="playerLoading"
+            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50">
+            {{ playerLoading ? 'Adding...' : 'Add Player' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Players Grid -->
+  <div id="playersList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div v-for="player in filteredPlayers" :key="player.id" class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex items-center space-x-4">
+        <div class="flex-shrink-0">
+          <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+            <span class="text-2xl text-gray-600">{{ player.name.charAt(0) }}</span>
+          </div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-lg font-semibold text-gray-900 truncate">
+            {{ player.name }}
+          </p>
+          <p class="text-sm text-gray-500">
+            {{ player.department }}
+          </p>
+          <p class="text-sm text-gray-500">
+            {{ player.degreeType || "Not specified" }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div v-if="filteredPlayers.length === 0" class="text-center py-12">
+    <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">No players found</h3>
+    <p class="text-gray-500">No players have been added for the {{ playerGender }} team yet.</p>
+  </div>
+</div>
+
+<script>
+  document.getElementById('addPlayerBtn')?.addEventListener('click', () => {
+    document.getElementById('playerModal').style.display = 'flex';
+  });
+  document.getElementById('closePlayerModal')?.addEventListener('click', () => {
+    document.getElementById('playerModal').style.display = 'none';
+  });
+</script>
+</body>
+</html>
