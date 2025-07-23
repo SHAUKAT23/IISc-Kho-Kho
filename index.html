@@ -58,63 +58,65 @@
         <ul class="space-y-2 mt-6">
           <li>
             <button
-              @click="setTab('players')"
-              :class="tab === 'players' ? activeClass : inactiveClass"
-              class="nav-link w-full text-left"
+              @click="changePage('players')"
+              :class="currentPage === 'players' ? 'bg-red-600 text-white hover:bg-red-700' : 'text-gray-600 hover:bg-gray-100'"
+              class="nav-link w-full text-left py-2 px-3 rounded-md transition duration-300 flex items-center"
             >
               <i class="fas fa-users mr-2"></i> Players
             </button>
           </li>
           <li>
             <button
-              @click="setTab('notifications')"
-              :class="tab === 'notifications' ? activeClass : inactiveClass"
-              class="nav-link w-full text-left"
+              @click="changePage('notifications')"
+              :class="currentPage === 'notifications' ? 'bg-red-600 text-white hover:bg-red-700' : 'text-gray-600 hover:bg-gray-100'"
+              class="nav-link w-full text-left py-2 px-3 rounded-md transition duration-300 flex items-center"
             >
               <i class="fas fa-bell mr-2"></i> Notifications
             </button>
           </li>
           <li>
             <button
-              @click="setTab('alumni')"
-              :class="tab === 'alumni' ? activeClass : inactiveClass"
-              class="nav-link w-full text-left"
+              @click="changePage('alumni')"
+              :class="currentPage === 'alumni' ? 'bg-red-600 text-white hover:bg-red-700' : 'text-gray-600 hover:bg-gray-100'"
+              class="nav-link w-full text-left py-2 px-3 rounded-md transition duration-300 flex items-center"
             >
               <i class="fas fa-graduation-cap mr-2"></i> Alumni
             </button>
           </li>
           <li>
             <button
-              @click="setTab('chat')"
-              :class="tab === 'chat' ? activeClass : inactiveClass"
-              class="nav-link w-full text-left"
+              @click="changePage('chat')"
+              :class="currentPage === 'chat' ? 'bg-red-600 text-white hover:bg-red-700' : 'text-gray-600 hover:bg-gray-100'"
+              class="nav-link w-full text-left py-2 px-3 rounded-md transition duration-300 flex items-center"
             >
               <i class="fas fa-comments mr-2"></i> Chat
             </button>
           </li>
           <li>
             <button
-              @click="setTab('media')"
-              :class="tab === 'media' ? activeClass : inactiveClass"
-              class="nav-link w-full text-left"
+              @click="changePage('media')"
+              :class="currentPage === 'media' ? 'bg-red-600 text-white hover:bg-red-700' : 'text-gray-600 hover:bg-gray-100'"
+              class="nav-link w-full text-left py-2 px-3 rounded-md transition duration-300 flex items-center"
             >
               <i class="fas fa-play-circle mr-2"></i> Media
             </button>
           </li>
           <li>
             <button
-              @click="setTab('account')"
-              :class="tab === 'account' ? activeClass : inactiveClass"
-              class="nav-link w-full text-left"
+              @click="changePage('account')"
+              :class="currentPage === 'account' ? 'bg-red-600 text-white hover:bg-red-700' : 'text-gray-600 hover:bg-gray-100'"
+              class="nav-link w-full text-left py-2 px-3 rounded-md transition duration-300 flex items-center"
             >
               <i class="fas fa-user-circle mr-2"></i> Account
             </button>
           </li>
         </ul>
 
-        <!-- Debug info panel -->
+        <!-- Debug info panel (remove or modify as needed for production) -->
         <div id="debug-info" class="mt-auto pt-4 border-t border-gray-200 text-xs text-gray-500 break-all">
           <!-- Debug info will be inserted here by the script -->
+          <p>Vite Development Server Active</p>
+          <p>Check browser console for Vue/Firebase logs.</p>
         </div>
       </nav>
 
@@ -122,19 +124,19 @@
       <main class="flex-1 flex flex-col">
         <!-- Header with user info and login button -->
         <header class="bg-white shadow-sm p-4 flex justify-between items-center">
-          <h2 class="text-2xl font-bold text-gray-800">{{ tabTitle }}</h2>
+          <h2 class="text-2xl font-bold text-gray-800">{{ currentPageComponentTitle }}</h2>
           
           <div class="flex items-center space-x-3">
             <template v-if="user">
-              <span class="text-sm text-gray-600">Welcome, {{ user.user_metadata?.full_name || user.email }}</span>
-              <button @click="logout" class="btn btn-outline-danger btn-sm" title="Logout">
-                <i class="fas fa-sign-out-alt"></i>
+              <span class="text-sm text-gray-600">Welcome, {{ user.displayName || user.email }}</span>
+              <button @click="logout" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded-md text-sm transition duration-300" title="Logout">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
               </button>
             </template>
             <template v-else>
               <button 
-                @click="setTab('account')"
-                class="btn-login bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium text-sm"
+                @click="changePage('account')"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium text-sm"
               >
                 Login / Register
               </button>
@@ -142,131 +144,28 @@
           </div>
         </header>
 
-        <!-- Content Area -->
+        <!-- Content Area - Where components will be rendered -->
         <section class="flex-1 overflow-auto p-6 bg-gray-50 content-area">
-          <!-- Content will be dynamically loaded here -->
-          <div class="flex items-center justify-center h-full">
-            <div class="text-center">
-              <div class="spinner w-12 h-12 border-4 border-blue-500 rounded-full border-t-transparent animate-spin mx-auto"></div>
-              <p class="mt-4 text-gray-600">Loading content...</p>
-            </div>
-          </div>
+          <component 
+            :is="currentPageComponent" 
+            :user="user"
+            :isConvener="isConvener"
+            :isRegisteredPlayer="isRegisteredPlayer"
+            :allPlayers="allPlayers"
+            :allNotifications="allNotifications"
+            :allAlumni="allAlumni"
+            :allChatMessages="allChatMessages"
+            @change-page="changePage"
+            @player-status-changed="fetchPlayersAndUserStatus"
+            @players-fetched="handlePlayersFetched"
+          ></component>
         </section>
       </main>
     </div>
   </div>
 
-  <!-- Vue (non-module version to make it globally available) -->
-  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js" crossorigin="anonymous" onerror="console.error('Failed to load Vue')"></script>
-  
-  <!-- Firebase SDK (non-modular version to make it globally available) -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js" crossorigin="anonymous" onerror="console.error('Failed to load Firebase App')"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js" crossorigin="anonymous" onerror="console.error('Failed to load Firebase Auth')"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js" crossorigin="anonymous" onerror="console.error('Failed to load Firebase Firestore')"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js" crossorigin="anonymous" onerror="console.error('Failed to load Firebase Storage')"></script>
-  
-  <!-- Firebase Configuration and Initialization -->
-  <script>
-    // Initialize Firebase with the compatibility version
-    const firebaseConfig = {
-      apiKey: "AIzaSyD1bd9K8h_UCSHn_Pu50Ii-hMXHQ2FxcsY",
-      authDomain: "kho-kho-connect.firebaseapp.com",
-      databaseURL: "https://kho-kho-connect-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "kho-kho-connect",
-      storageBucket: "kho-kho-connect.firebasestorage.app",
-      messagingSenderId: "137549154272",
-      appId: "1:137549154272:web:a9e567a9998f26e69fcd85"
-    };
-    
-    try {
-      // Check if Firebase is already loaded
-      if (typeof firebase !== 'undefined') {
-        console.log("Firebase SDK detected, initializing app...");
-        
-        // Initialize Firebase globally
-        if (!firebase.apps || !firebase.apps.length) {
-          firebase.initializeApp(firebaseConfig);
-          console.log("Firebase initialized successfully");
-        } else {
-          console.log("Firebase already initialized");
-        }
-        
-        // Make services accessible globally
-        window.db = firebase.firestore();
-        window.auth = firebase.auth();
-        window.storage = firebase.storage();
-        
-        console.log("Firebase services initialized globally");
-      } else {
-        console.error("Firebase SDK not loaded!");
-        alert("Firebase SDK not loaded. Please check your internet connection and try again.");
-      }
-    } catch (error) {
-      console.error("Error initializing Firebase:", error);
-      alert("Failed to initialize Firebase: " + error.message);
-    }
-  </script>
-  
-  <!-- Debug Script -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const debugInfo = document.getElementById('debug-info');
-      if (debugInfo) {
-        try {
-          let info = "Debug Time: " + new Date().toLocaleTimeString() + "<br>";
-          info += "Browser: " + navigator.userAgent.substring(0, 50) + "...<br>";
-          
-          // Check scripts
-          const scripts = Array.from(document.querySelectorAll('script')).map(s => s.src || 'inline');
-          info += "Scripts loaded: " + scripts.length + "<br>";
-          
-          // Check Vue
-          if (window.Vue) {
-            info += "Vue: Available (Version: " + (Vue.version || 'unknown') + ")<br>";
-          } else {
-            info += "Vue: <span style='color:red'>Missing</span><br>";
-          }
-          
-          // Check Firebase
-          if (typeof firebase !== 'undefined') {
-            info += "Firebase: Available<br>";
-            // Check Firebase services
-            if (window.db) info += "- Firestore: Available<br>";
-            if (window.auth) info += "- Auth: Available<br>";
-            if (window.storage) info += "- Storage: Available<br>";
-          } else {
-            info += "Firebase: <span style='color:orange'>Not detected globally</span><br>";
-          }
-          
-          debugInfo.innerHTML = info;
-          
-          // Check if app.js loaded
-          window.debugInterval = setInterval(() => {
-            if (window.appLoaded) {
-              debugInfo.innerHTML += "<br>✅ app.js loaded successfully";
-              clearInterval(window.debugInterval);
-            }
-          }, 1000);
-          
-          // Timeout after 5 seconds
-          setTimeout(() => {
-            if (!window.appLoaded) {
-              debugInfo.innerHTML += "<br><strong style='color:red'>Warning:</strong> app.js might not have loaded properly.";
-              clearInterval(window.debugInterval);
-            }
-          }, 5000);
-        } catch (e) {
-          debugInfo.innerHTML = "Error getting debug info: " + e.message;
-        }
-      }
-    });
-  </script>
-  
-  <!-- Debug Helper -->
-  <script src="./js/debug.js"></script>
-  
-  <!-- Application JS -->
-  <script src="./js/app.js"></script>
+  <!-- Application JS - now an ES Module handled by Vite -->
+  <script type="module" src="/js/app.js"></script>
 
 </body>
 </html>
